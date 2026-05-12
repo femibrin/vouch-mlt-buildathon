@@ -587,6 +587,71 @@
   }
 
   .hidden-input { display: none; }
+
+  /* VOUCH DEFINITION */
+  .vouch-def {
+    padding: 48px 0 32px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 24px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .vouch-def .def-word {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 400;
+    color: var(--ink); letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .vouch-def .def-pron {
+    font-family: var(--font-ui);
+    font-size: 13px; color: var(--ink-3);
+    font-weight: 400; font-style: italic;
+  }
+  .vouch-def .def-pos {
+    font-family: var(--font-display);
+    font-style: italic; font-size: 22px;
+    color: var(--pop); line-height: 1;
+  }
+  .vouch-def .def-meaning {
+    font-family: var(--font-display);
+    font-style: italic; font-size: 22px;
+    color: var(--ink-2); flex: 1; min-width: 280px;
+    letter-spacing: -0.01em; line-height: 1.35;
+  }
+  @media (max-width: 720px) {
+    .vouch-def { padding: 32px 0 24px; gap: 16px; }
+    .vouch-def .def-word { font-size: 28px; }
+    .vouch-def .def-meaning { font-size: 18px; }
+  }
+
+  /* JD PRESET CHIPS */
+  .jd-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .jd-chip {
+    background: var(--paper);
+    color: var(--ink-2);
+    font-family: var(--font-ui);
+    font-size: 12px; font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: -0.005em;
+    transition: all 150ms ease-out;
+  }
+  .jd-chip:hover { color: var(--pop); border-color: var(--pop); }
+  .jd-chip.loading { color: var(--ink-4); border-color: var(--ink-4); cursor: wait; }
+  .jd-chips-label {
+    font-family: var(--font-ui);
+    font-size: 12px; font-weight: 500;
+    color: var(--ink-3);
+    margin: 14px 0 4px;
+  }
 </style>
 </head>
 <body>
@@ -612,6 +677,15 @@
     </div>
   </div>
 
+  <div class="page-default" style="padding-top: 24px;">
+    <div class="vouch-def">
+      <span class="def-word">vouch</span>
+      <span class="def-pron">/vau̇ch/</span>
+      <span class="def-pos">v.</span>
+      <span class="def-meaning">to attest, to assert positively — to stand behind someone's record before they've had to defend it themselves.</span>
+    </div>
+  </div>
+
   <div class="page-default">
     <div class="meta-strip">
       <div class="meta-item">
@@ -627,8 +701,8 @@
         <div class="meta-label">Artifact, source-tagged</div>
       </div>
       <div class="meta-item">
-        <div class="meta-num">0</div>
-        <div class="meta-label">Hallucinations</div>
+        <div class="meta-num">4</div>
+        <div class="meta-label">Artifact types</div>
       </div>
     </div>
   </div>
@@ -650,7 +724,7 @@
     <div class="field">
       <label class="field-label" for="profile-resume">
         Your resume
-        <span class="field-hint">paste the text now — PDF upload in Phase 2</span>
+        <span class="field-hint">paste the text now — PDF upload functionality coming</span>
       </label>
       <textarea class="input textarea" id="profile-resume" placeholder="Paste your resume here. Include role, company, dates, bullets — the messier and more detailed, the better."></textarea>
     </div>
@@ -658,9 +732,18 @@
     <div class="field">
       <label class="field-label" for="profile-jd">
         Target job description
-        <span class="field-hint"><span class="link-pop" onclick="suggestJD()" id="suggest-jd-btn">Find one for me</span></span>
+        <span class="field-hint">paste your own — or pick a role below</span>
       </label>
-      <textarea class="input textarea textarea-md" id="profile-jd" placeholder="Paste a JD you're considering — or click 'Find one for me' to have Claude generate a plausible stretch role based on your resume."></textarea>
+      <p class="jd-chips-label">Find one for me · pre-loaded by MLT lane:</p>
+      <div class="jd-chips">
+        <button class="jd-chip" data-role="Senior Product Manager at a Series B–C enterprise AI company">Product Manager</button>
+        <button class="jd-chip" data-role="Strategy &amp; Operations Lead at a large tech company or hyperscaler (e.g., Google, Amazon, Microsoft) — biz ops / planning / portfolio strategy">Strategy &amp; Ops</button>
+        <button class="jd-chip" data-role="Senior Consultant or Manager at MBB or Big Four — focused on growth, transformation, or AI strategy engagements">Consulting</button>
+        <button class="jd-chip" data-role="Senior Brand or Growth Marketing Lead at a consumer or B2B company (CPG, fintech, or scaled startup)">Marketing</button>
+        <button class="jd-chip" data-role="Investment Banking Associate or VP at a bulge-bracket or boutique firm — sector coverage or M&amp;A">Banking</button>
+        <button class="jd-chip" data-role="Senior Engineering Manager or Tech Lead for AI/ML systems at a Series B+ AI company or platform org">Engineering</button>
+      </div>
+      <textarea class="input textarea textarea-md" id="profile-jd" placeholder="Paste a JD you're considering — or pick a role above to have Claude generate a plausible stretch role from your resume."></textarea>
       <p class="field-helper" id="jd-suggest-status"></p>
     </div>
 
@@ -1098,22 +1181,23 @@ function readProfileForm() {
 }
 function saveProfileAndGo() { saveProfile(readProfileForm()); goto('trigger'); }
 
-async function suggestJD() {
+async function suggestJD(direction = '', chipEl = null) {
   const resume = document.getElementById('profile-resume').value.trim();
+  const status = document.getElementById('jd-suggest-status');
   if (resume.length < 100) {
-    document.getElementById('jd-suggest-status').textContent = 'Paste at least a paragraph of your resume first.';
+    status.textContent = 'Paste at least a paragraph of your resume first so the suggestion has something to work from.';
     return;
   }
-  const btn = document.getElementById('suggest-jd-btn');
-  const status = document.getElementById('jd-suggest-status');
-  btn.textContent = 'Generating...';
-  btn.style.pointerEvents = 'none';
-  status.textContent = 'Reading your resume, picking a plausible stretch role...';
+  if (chipEl) chipEl.classList.add('loading');
+  document.querySelectorAll('.jd-chip').forEach(c => { if (c !== chipEl) c.style.pointerEvents = 'none'; });
+  status.textContent = direction
+    ? `Generating a ${direction.split(' at ')[0].toLowerCase()} role from your resume...`
+    : 'Reading your resume, picking a plausible stretch role...';
   try {
     const response = await fetch('/api/suggest-jd', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resume }),
+      body: JSON.stringify({ resume, direction }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
@@ -1125,10 +1209,14 @@ async function suggestJD() {
   } catch (err) {
     status.textContent = 'Suggestion failed: ' + err.message;
   } finally {
-    btn.textContent = 'Find one for me';
-    btn.style.pointerEvents = '';
+    if (chipEl) chipEl.classList.remove('loading');
+    document.querySelectorAll('.jd-chip').forEach(c => { c.style.pointerEvents = ''; });
   }
 }
+
+document.querySelectorAll('.jd-chip').forEach(chip => {
+  chip.addEventListener('click', () => suggestJD(chip.dataset.role, chip));
+});
 
 function buildProfileContext() {
   const p = loadProfile();
