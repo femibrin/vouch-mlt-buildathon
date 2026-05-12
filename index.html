@@ -625,6 +625,43 @@
     .vouch-def .def-meaning { font-size: 18px; }
   }
 
+  /* HOW IT WORKS — 4-step landing strip */
+  .how-strip {
+    padding: 64px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+  @media (max-width: 880px) { .how-strip { grid-template-columns: repeat(2, 1fr); gap: 32px; padding: 48px 0; } }
+  @media (max-width: 480px) { .how-strip { grid-template-columns: 1fr; gap: 32px; } }
+  .how-item { }
+  .how-icon {
+    width: 32px; height: 32px;
+    color: var(--pop);
+    margin-bottom: 22px;
+    display: block;
+  }
+  .how-num {
+    font-family: var(--font-ui);
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--pop); margin-bottom: 10px;
+  }
+  .how-name {
+    font-family: var(--font-display);
+    font-size: 26px; font-weight: 400;
+    letter-spacing: -0.02em; color: var(--ink);
+    line-height: 1.05; margin-bottom: 12px;
+  }
+  .how-name em { font-style: italic; color: var(--pop); }
+  .how-desc {
+    font-family: var(--font-ui);
+    font-size: 13px; color: var(--ink-3);
+    line-height: 1.55;
+  }
+
   /* JD PRESET CHIPS */
   .jd-chips {
     display: flex;
@@ -683,6 +720,51 @@
       <span class="def-pron">/vau̇ch/</span>
       <span class="def-pos">v.</span>
       <span class="def-meaning">to attest, to assert positively. To stand firmly behind a body of work.</span>
+    </div>
+  </div>
+
+  <div class="page-default">
+    <div class="how-strip">
+      <div class="how-item">
+        <svg class="how-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5"/>
+          <path d="M5 20c0-4 3-6 7-6s7 2 7 6"/>
+        </svg>
+        <p class="how-num">01 · Profile</p>
+        <h3 class="how-name"><em>Standing</em> context.</h3>
+        <p class="how-desc">Resume, target JD, LinkedIn. Once, then known. Every artifact uses this as baseline so the AI knows your shape without re-asking.</p>
+      </div>
+      <div class="how-item">
+        <svg class="how-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 4h12"/>
+          <path d="M4 8h16"/>
+          <path d="M6 12h12"/>
+          <path d="M8 17l4 4 4-4"/>
+        </svg>
+        <p class="how-num">02 · Dump</p>
+        <h3 class="how-name"><em>Raw material</em> in.</h3>
+        <p class="how-desc">Projects, calendar, feedback, OKRs, Slack threads — paste anything. No structure required. The messier, the better.</p>
+      </div>
+      <div class="how-item">
+        <svg class="how-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="1.5"/>
+          <line x1="12" y1="4" x2="12" y2="20"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+        </svg>
+        <p class="how-num">03 · Mirror</p>
+        <h3 class="how-name"><em>Four reflections</em> out.</h3>
+        <p class="how-desc">Themes · underselling + office housework · feedback decoded (severity-coded) · where your evidence points next.</p>
+      </div>
+      <div class="how-item">
+        <svg class="how-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 3h9l4 4v14H6z"/>
+          <path d="M15 3v4h4"/>
+          <path d="M9 14l2 2 4-4"/>
+        </svg>
+        <p class="how-num">04 · Vouch</p>
+        <h3 class="how-name">The <em>artifact.</em></h3>
+        <p class="how-desc">Performance review, promo case, interview prep, or sponsor briefing. Source-tagged. Editable. Exportable to PDF · Word · Markdown.</p>
+      </div>
     </div>
   </div>
 
