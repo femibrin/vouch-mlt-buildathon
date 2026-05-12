@@ -1207,9 +1207,13 @@ async function suggestJD(direction = '', chipEl = null) {
     }
     const data = await response.json();
     document.getElementById('profile-jd').value = `${data.role_title} · ${data.company_archetype}\n\n${data.jd}`;
-    status.textContent = `Suggested: ${data.role_title}. Edit if you want to anchor on a different direction.`;
+    // Auto-save to localStorage immediately so the JD persists across nav / refresh
+    saveProfile(readProfileForm());
+    status.textContent = `✓ Saved · ${data.role_title}. Edit if you want to anchor on a different direction.`;
+    status.style.color = 'var(--good)';
   } catch (err) {
     status.textContent = 'Suggestion failed: ' + err.message;
+    status.style.color = 'var(--bad)';
   } finally {
     if (chipEl) chipEl.classList.remove('loading');
     document.querySelectorAll('.jd-chip').forEach(c => { c.style.pointerEvents = ''; });
@@ -1218,6 +1222,14 @@ async function suggestJD(direction = '', chipEl = null) {
 
 document.querySelectorAll('.jd-chip').forEach(chip => {
   chip.addEventListener('click', () => suggestJD(chip.dataset.role, chip));
+});
+
+// Auto-save profile fields on blur so nothing is ever lost between screens
+['profile-resume', 'profile-jd', 'profile-linkedin'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('blur', () => saveProfile(readProfileForm()));
+  }
 });
 
 // =====================================================================
