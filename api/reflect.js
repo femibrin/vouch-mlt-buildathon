@@ -28,8 +28,10 @@ module.exports = async (req, res) => {
     // Cap dump size to keep total context manageable (~30K chars ≈ 7.5K tokens of input)
     const trimmedDump = dump.length > 30000 ? dump.slice(0, 30000) + '\n\n[...truncated for length]' : dump;
 
+    // Haiku 4.5 — fastest model. Reflect is structured JSON extraction + classification,
+    // which is Haiku's strength. Sonnet was hitting Vercel's 60s hobby-tier cap on dense dumps.
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 3000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: REFLECT_PROMPT(trimmedDump) }],
