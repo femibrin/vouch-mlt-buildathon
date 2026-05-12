@@ -724,9 +724,11 @@
     <div class="field">
       <label class="field-label" for="profile-resume">
         Your resume
-        <span class="field-hint">paste the text now — PDF upload functionality coming</span>
+        <span class="field-hint">paste the text — or <label for="profile-resume-pdf" class="link-pop" style="cursor: pointer;">upload a PDF</label></span>
       </label>
-      <textarea class="input textarea" id="profile-resume" placeholder="Paste your resume here. Include role, company, dates, bullets — the messier and more detailed, the better."></textarea>
+      <input type="file" id="profile-resume-pdf" accept="application/pdf,.pdf" style="display: none;" />
+      <textarea class="input textarea" id="profile-resume" placeholder="Paste your resume here, or upload a PDF above. Include role, company, dates, bullets."></textarea>
+      <p class="field-helper" id="resume-pdf-status"></p>
     </div>
 
     <div class="field">
@@ -1217,6 +1219,72 @@ async function suggestJD(direction = '', chipEl = null) {
 document.querySelectorAll('.jd-chip').forEach(chip => {
   chip.addEventListener('click', () => suggestJD(chip.dataset.role, chip));
 });
+
+// =====================================================================
+// PDF RESUME UPLOAD
+// =====================================================================
+async function handleResumePDF(file) {
+  const status = document.getElementById('resume-pdf-status');
+  if (!file) return;
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    status.textContent = 'Please select a PDF file.';
+    status.style.color = 'var(--bad)';
+    return;
+  }
+  const MAX_BYTES = 3 * 1024 * 1024; // 3MB raw → ~4MB base64
+  if (file.size > MAX_BYTES) {
+    status.textContent = `PDF too large (${Math.round(file.size/1024)}KB). Max 3MB. For longer resumes, paste the text directly.`;
+    status.style.color = 'var(--bad)';
+    return;
+  }
+  status.style.color = 'var(--ink-3)';
+  status.textContent = `Reading ${file.name} (${Math.round(file.size/1024)}KB)... Claude is parsing your resume.`;
+
+  try {
+    // Read file as base64
+    const b64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          const comma = result.indexOf(',');
+          resolve(comma >= 0 ? result.slice(comma + 1) : result);
+        } else {
+          reject(new Error('Unexpected reader result type'));
+        }
+      };
+      reader.onerror = () => reject(reader.error || new Error('File read failed'));
+      reader.readAsDataURL(file);
+    });
+
+    const response = await fetch('/api/parse-resume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdf_b64: b64, filename: file.name }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    document.getElementById('profile-resume').value = data.text;
+    status.style.color = 'var(--good)';
+    status.textContent = `✓ Parsed ${file.name}. Edit anything that's off below.`;
+  } catch (err) {
+    status.style.color = 'var(--bad)';
+    status.textContent = 'Parsing failed: ' + err.message;
+  }
+}
+
+const resumePdfInput = document.getElementById('profile-resume-pdf');
+if (resumePdfInput) {
+  resumePdfInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) handleResumePDF(file);
+    // Reset so re-selecting the same file works
+    e.target.value = '';
+  });
+}
 
 function buildProfileContext() {
   const p = loadProfile();
