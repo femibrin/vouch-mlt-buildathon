@@ -58,7 +58,7 @@ Every artifact: editable, source-tagged, exportable to **PDF / Word / Markdown**
 
 ## What makes Vouch distinctive
 
-**Evidence-first, never tone-policed.** Self-promotion is structurally penalized for first-gen and underrepresented professionals (Heilman 2001, Rudman 1998, Wayne & Sun 2022). Vouch routes assertion through *objective data* — source-tagged to projects, calendar, feedback — so users don't have to perform agentic self-advocacy that triggers backlash. **The data does the asserting. Users get to talk their shit.**
+**Evidence-first, never tone-policed.** Self-promotion is structurally penalized for first-gen and underrepresented professionals (Heilman 2001, Rudman 1998, Wayne & Sun 2022). Vouch routes assertion through *objective data* — source-tagged to projects, calendar, feedback — so users don't have to perform agentic self-advocacy that triggers backlash. **The data does the asserting. Users get to speak plainly.**
 
 **Office-housework surfacing → glamour move.** Women and underrepresented professionals absorb 4× more service labor (Williams, Babcock, Padilla). Vouch detects the pattern and offers a concrete role-conversion proposal *with the email drafted*. The only career tool that bridges articulation → trajectory.
 
@@ -87,14 +87,16 @@ Every artifact: editable, source-tagged, exportable to **PDF / Word / Markdown**
 
 ## Tech stack
 
-- **Frontend** — Single-page HTML + Tailwind (CDN) + vanilla JS. Marked.js for markdown rendering, html2pdf.js for PDF export
-- **Deploy** — Vercel (static frontend + serverless functions)
-- **API routes** — Node serverless functions on Vercel
-  - `/api/reflect` — Claude Sonnet 4.6, returns structured JSON for the four Mirror reflections
-  - `/api/generate` — Per-type model selection (Opus 4.7 for prose-heavy artifacts; Sonnet 4.6 for shorter ones)
-  - `/api/suggest-jd` — Generates a plausible stretch JD from a resume
-- **AI** — Anthropic Claude (Sonnet 4.6 + Opus 4.7) via `@anthropic-ai/sdk`
-- **Storage** — `localStorage` for profile (no server-side persistence in tonight's MVP)
+- **Frontend** — Single-page HTML + Tailwind (CDN) + vanilla JS. Marked.js for markdown rendering, html2pdf.js for client-side PDF export
+- **Deploy** — Vercel (static frontend + four Node serverless functions)
+- **API routes** — All tuned to fit Vercel hobby-tier 60s function cap
+  - `/api/reflect` — **Claude Haiku 4.5**, returns structured JSON for the four Mirror reflections (fast structured extraction)
+  - `/api/generate` — **Claude Sonnet 4.6** for all four artifact types (Performance Review, Promo Case, Interview Prep, Sponsor Conversation)
+  - `/api/suggest-jd` — Sonnet 4.6, generates a plausible stretch JD from a resume
+  - `/api/parse-resume` — Sonnet 4.6, reads PDFs natively via document content blocks (no parsing library)
+- **AI** — Anthropic Claude via `@anthropic-ai/sdk` (Sonnet 4.6 + Haiku 4.5)
+- **Design system** — Lane C: pure white, cobalt blue `#2050f0`, DM Serif Display headlines (italic-cobalt for emphasis), `-apple-system` for body, pill primary CTAs, iOS-bubble quote pills
+- **Storage** — `localStorage` for profile (no server-side persistence)
 
 ---
 
@@ -122,15 +124,17 @@ For production deploy, set `ANTHROPIC_API_KEY` in Vercel project env vars (marke
 
 ```
 .
-├── index.html                  # Full client app (Tailwind + vanilla JS)
+├── index.html                  # Full client app (Tailwind + vanilla JS, Lane C design system)
 ├── api/
-│   ├── reflect.js              # POST { dump } → { reflections } — Sonnet 4.6
-│   ├── generate.js             # POST { dump, type, ... } → { artifact, frame } — Opus 4.7 or Sonnet 4.6 per type
-│   └── suggest-jd.js           # POST { resume } → { role_title, company_archetype, jd } — Sonnet 4.6
+│   ├── reflect.js              # POST { dump } → { reflections } — Haiku 4.5
+│   ├── generate.js             # POST { dump, type, ... } → { artifact, frame } — Sonnet 4.6 (all types)
+│   ├── suggest-jd.js           # POST { resume, direction? } → { role_title, company_archetype, jd } — Sonnet 4.6
+│   └── parse-resume.js         # POST { pdf_b64 } → { text } — Sonnet 4.6 native PDF document blocks
 ├── lib/
-│   └── prompts.js              # System prompt + REFLECT_PROMPT + 5 artifact prompt templates
+│   └── prompts.js              # System prompt + REFLECT_PROMPT + 4 artifact prompt templates
+├── visual-prd.html             # Visual one-pager (Lane C, paste-into-a-judges-laptop friendly)
 ├── package.json                # @anthropic-ai/sdk
-├── vercel.json                 # Function config
+├── vercel.json                 # Function config (maxDuration per endpoint)
 ├── LICENSE                     # MIT
 └── README.md
 ```
