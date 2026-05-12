@@ -78,7 +78,7 @@ Every artifact: editable, source-tagged, exportable to **PDF / Word / Markdown**
 
 | Tier | Audience | Notes |
 |---|---|---|
-| **Free, forever** | MLT alums · Rising Leaders · CAP cohort | Community as moat |
+| **Free for a quarter** | MLT alums · Rising Leaders · CAP cohort | 90-day full-cycle trial, then freemium with alum discount |
 | **Freemium individual** | Mid-career professionals broadly | Deeper feedback decoding, integrations |
 | **B2B partner programs** | Enterprises measuring talent equity (Black Equity at Work scorecard) | Standardized talent data |
 | **Phase 2 — manager-facing** | Calibration prep, performance ROI | Gallup: $2.4M–$35M annual review cost per 10K-person company |

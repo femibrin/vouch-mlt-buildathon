@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vouch — Visual PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #ffffff;
+    --paper-2:      #f5f5f7;
+    --paper-3:      #fafafa;
+    --ink:          #000000;
+    --ink-2:        #1d1d1f;
+    --ink-3:        #6e6e73;
+    --ink-4:        #86868b;
+    --rule:         #d2d2d7;
+    --rule-2:       #e5e5ea;
+    --pop:          #2050f0;
+    --pop-deep:     #0040d0;
+    --pop-tint:     rgba(32, 80, 240, 0.08);
+    --good:         #248a3d;
+    --bad:          #d70015;
+    --font-display: 'DM Serif Display', 'Times New Roman', Georgia, serif;
+    --font-ui:      -apple-system, BlinkMacSystemFont, 'Inter Tight', 'SF Pro Text', system-ui, sans-serif;
+    --focus-ring:   0 0 0 3px rgba(32, 80, 240, 0.32);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink-2); font-family: var(--font-ui); }
+  body {
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 400; color: var(--ink); }
+  em { font-style: italic; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+  /* ============ TOP STRIP ============ */
+  .top-strip {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .top-strip-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand-mark {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand-mark em { font-style: italic; color: var(--pop); }
+  .top-meta {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 88px 0 56px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .eyebrow {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--pop);
+    margin-bottom: 28px;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    margin-bottom: 32px;
+    max-width: 900px;
+  }
+  .hero-title em { font-style: italic; color: var(--pop); }
+  .hero-sub {
+    font-family: var(--font-ui);
+    font-size: 19px;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: var(--ink-3);
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+  .hero-quote {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    max-width: 720px;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+  }
+  .hero-quote-attr {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-4);
+  }
+
+  /* ============ META-STRIP ============ */
+  .meta-strip {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .meta-item .meta-num {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .meta-item .meta-num em { font-style: italic; color: var(--pop); }
+  .meta-item .meta-num .small { font-size: 32px; }
+  .meta-item .meta-label {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+    letter-spacing: -0.005em;
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .meta-item .meta-src {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-4);
+  }
+
+  /* ============ SECTION ============ */
+  section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  section:last-of-type { border-bottom: none; }
+  .section-head { margin-bottom: 48px; max-width: 800px; }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .section-title em { font-style: italic; color: var(--pop); }
+  .section-sub {
+    font-family: var(--font-ui);
+    font-size: 17px;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+    color: var(--ink-3);
+  }
+
+  /* ============ LOOP ROW ============ */
+  .loop-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .loop-card {
+    padding: 28px 0 0;
+    border-top: 2px solid var(--ink);
+  }
+  .loop-card .loop-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 32px;
+    color: var(--pop);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .loop-card .loop-name {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .loop-card .loop-desc {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+
+  /* ============ ARTIFACT CARDS ============ */
+  .artifact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .artifact-card {
+    background: var(--paper);
+    padding: 36px 32px;
+  }
+  .artifact-card .artifact-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 32px;
+    color: var(--pop);
+    line-height: 1;
+    margin-bottom: 18px;
+  }
+  .artifact-card h3 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .artifact-card .artifact-mode {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    letter-spacing: -0.005em;
+    margin-bottom: 16px;
+  }
+  .artifact-card .artifact-frame {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--pop);
+    margin-bottom: 18px;
+  }
+  .artifact-card .artifact-desc {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+
+  /* ============ DEMO ARC ============ */
+  .demo-arc {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .demo-step {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+  }
+  .demo-step.climax {
+    border-color: var(--pop);
+    box-shadow: 0 0 0 1px var(--pop);
+  }
+  .demo-step .demo-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--pop);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .demo-step .demo-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .demo-step .demo-mock {
+    background: var(--paper-2);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .demo-step .mock-headline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .demo-step .mock-pill {
+    background: var(--paper);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-3);
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .demo-step .mock-pill.active { color: var(--pop); border: 1px solid var(--pop); }
+  .demo-step .demo-caption {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .demo-step .demo-caption strong { color: var(--pop); font-weight: 600; }
+  .climax-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: var(--pop);
+    color: white;
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  /* ============ QUOTE PILLS / DIFFS ============ */
+  .diff-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 880px;
+  }
+  .diff-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .diff-item .diff-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 38px;
+    color: var(--pop);
+    line-height: 1;
+  }
+  .diff-item .diff-content h3 {
+    font-family: var(--font-ui);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .diff-item .diff-content p {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .diff-pill {
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border-left: 2px solid var(--pop);
+    margin-top: 14px;
+    display: inline-block;
+  }
+
+  /* ============ SUSTAIN ============ */
+  .sustain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .sustain-card {
+    background: var(--paper);
+    padding: 32px 28px;
+  }
+  .sustain-card .tier-label {
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--pop);
+    margin-bottom: 16px;
+  }
+  .sustain-card h4 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .sustain-card p {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+
+  /* ============ CLOSING ============ */
+  .closing {
+    padding: 96px 0 80px;
+    text-align: left;
+  }
+  .closing-title {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    margin-bottom: 32px;
+    max-width: 880px;
+  }
+  .closing-title em { font-style: italic; color: var(--pop); }
+  .closing-links {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .closing-links .link-block { font-family: var(--font-ui); }
+  .closing-links .link-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+  }
+  .closing-links a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--pop);
+    text-decoration: none;
+    border-bottom: 1px solid var(--pop);
+    transition: color 150ms ease-out;
+  }
+  .closing-links a:hover { color: var(--pop-deep); border-bottom-color: var(--pop-deep); }
+
+  /* ============ FOOT ============ */
+  .page-foot {
+    border-top: 1px solid var(--rule);
+    padding: 24px 32px;
+    text-align: center;
+  }
+  .page-foot p {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3);
+    letter-spacing: 0.01em;
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    body { background: white; }
+    .top-strip { border-bottom-color: #000; }
+    section { padding: 48px 0; page-break-inside: avoid; }
+    .hero { padding: 56px 0 40px; }
+    .hero-title { font-size: 56px; }
+    .section-title { font-size: 36px; }
+    .meta-strip { padding: 28px 0; }
+    .meta-item .meta-num { font-size: 44px; }
+  }
+  @media (max-width: 880px) {
+    .hero-title { font-size: 56px; }
+    .section-title { font-size: 36px; }
+    .meta-strip, .loop-row, .artifact-grid, .demo-arc, .sustain-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .meta-strip, .loop-row, .artifact-grid, .demo-arc, .sustain-grid { grid-template-columns: 1fr; }
+    .page { padding: 0 20px; }
+    .hero { padding: 56px 0 40px; }
+    .hero-title { font-size: 44px; }
+    section { padding: 56px 0; }
+    .section-title { font-size: 30px; }
+    .diff-item { grid-template-columns: 1fr; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP -->
+<div class="top-strip">
+  <div class="top-strip-inner">
+    <span class="brand-mark">V<em>·</em></span>
+    <span class="top-meta">MLT20 Buildathon · Visual PRD · v1 · 2026.05.11</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <section class="hero" style="border-bottom: 1px solid var(--rule);">
+    <p class="eyebrow">Career articulation, redesigned.</p>
+    <h1 class="hero-title">Closing the<br><em>evidence gap.</em></h1>
+    <p class="hero-sub">For first-generation and underrepresented professionals, mid-career stall is not a confidence problem, a skill problem, or a strategy problem. It is an <strong>evidence problem</strong> — the structural distance between work done and the receipts the people deciding your trajectory can actually see, remember, and carry.</p>
+    <p class="hero-quote">"I knew I'd done the work. <em style="color: var(--pop);">I just couldn't say it.</em>"</p>
+    <p class="hero-quote-attr">That sentence is the entire problem.</p>
+  </section>
+
+  <!-- DATA META-STRIP -->
+  <div class="meta-strip">
+    <div class="meta-item">
+      <div class="meta-num">27<em>%</em></div>
+      <div class="meta-label">of self-identified sponsors actually advocate — protégés can't supply evidence on demand.</div>
+      <div class="meta-src">Coqual · Sponsor Dividend</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num">66 <em>vs 1</em></div>
+      <div class="meta-label">% of women's reviews contain negative personality criticism. Men's: 1%.</div>
+      <div class="meta-src">Correll · Stanford VMware audit</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num">5 <em>vs 20</em></div>
+      <div class="meta-label">% of Black professionals have a sponsor vs. 20% of white. The gap isn't ambition.</div>
+      <div class="meta-src">Coqual · Sponsorship Dividend</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num"><em>↑</em></div>
+      <div class="meta-label">Narrative agency themes <em>increase before</em> outcomes improve. Evidence is causally upstream.</div>
+      <div class="meta-src">Adler · JPSP 2012 (longitudinal)</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <header class="section-head">
+      <p class="eyebrow">How Vouch works</p>
+      <h2 class="section-title">Profile. Dump. Mirror. <em>Vouch.</em></h2>
+      <p class="section-sub">Three loops, plus standing context. Two minutes in, one artifact out.</p>
+    </header>
+    <div class="loop-row">
+      <div class="loop-card">
+        <p class="loop-num">00</p>
+        <h3 class="loop-name">Profile</h3>
+        <p class="loop-desc">Resume · target JD · LinkedIn. Standing context for every artifact going forward. Once, then known.</p>
+      </div>
+      <div class="loop-card">
+        <p class="loop-num">01</p>
+        <h3 class="loop-name">Dump</h3>
+        <p class="loop-desc">The raw material for the moment ahead. Projects, calendar, feedback, OKRs, Slack. No structure required.</p>
+      </div>
+      <div class="loop-card">
+        <p class="loop-num">02</p>
+        <h3 class="loop-name">Mirror</h3>
+        <p class="loop-desc">Four reflections back. Themes · underselling + housework · feedback decoded · next moves. Push back where they're wrong.</p>
+      </div>
+      <div class="loop-card">
+        <p class="loop-num">03</p>
+        <h3 class="loop-name">Vouch</h3>
+        <p class="loop-desc">The artifact. Editable. Source-tagged. Exportable to PDF · Word · Markdown. Yours to walk into the room with.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUR ARTIFACTS -->
+  <section>
+    <header class="section-head">
+      <p class="eyebrow">Four artifacts</p>
+      <h2 class="section-title">Tools for <em>the moments</em><br>you'd otherwise wing it.</h2>
+      <p class="section-sub">Every artifact: editable, source-tagged to the dump, exportable in three formats. Each frame is auto-selected from content and user-swappable.</p>
+    </header>
+    <div class="artifact-grid">
+      <div class="artifact-card">
+        <p class="artifact-num">01</p>
+        <h3>Performance Review</h3>
+        <p class="artifact-mode">Self-assessment</p>
+        <p class="artifact-frame">Frame · Redemption Sequence</p>
+        <p class="artifact-desc">Year-end / mid-year / calibration. Acknowledges prior signal ("development needed") → demonstrates response → forward ask. Source-tagged Key Outcomes in CAR structure. Leadership multiplier when team data is present.</p>
+      </div>
+      <div class="artifact-card">
+        <p class="artifact-num">02</p>
+        <h3>Promo Case</h3>
+        <p class="artifact-mode">Committee packet</p>
+        <p class="artifact-frame">Frame · CAR · Competency-Mapped</p>
+        <p class="artifact-desc">The packet your sponsor walks into committee with. Scope expansion vs. level expectation. Three STAR proof points. Trajectory rationale. The specific ask + decision criteria.</p>
+      </div>
+      <div class="artifact-card">
+        <p class="artifact-num">03</p>
+        <h3>Interview Prep</h3>
+        <p class="artifact-mode">External role · or internal transfer</p>
+        <p class="artifact-frame">Frame · STAR · JD-Mapped</p>
+        <p class="artifact-desc">Five stories mapped to JD competencies. Anticipated question themes. Address concerns directly — no apology, no softening. Questions to ask them. Networking toolkit: 30-sec pitch, cold outreach, warm intro.</p>
+      </div>
+      <div class="artifact-card">
+        <p class="artifact-num">04</p>
+        <h3>Sponsor Conversation</h3>
+        <p class="artifact-mode">Briefing memo · Personal Board update inside</p>
+        <p class="artifact-frame">Frame · Briefing Memo</p>
+        <p class="artifact-desc">Where I am · Where I want to go · What I'm doing · What I need from you. Trajectory-over-time section when multi-cycle data is present. The question to leave with.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO ARC -->
+  <section>
+    <header class="section-head">
+      <p class="eyebrow">The demo arc</p>
+      <h2 class="section-title">Trajectory, <em>not just</em> articulation.</h2>
+      <p class="section-sub">The reveal moment: Vouch turns invisible coordination work into a scoped, promotable role — and drafts the email.</p>
+    </header>
+    <div class="demo-arc">
+      <div class="demo-step">
+        <p class="demo-num">01</p>
+        <h3 class="demo-name">Dump</h3>
+        <div class="demo-mock">
+          <p class="mock-headline">Tell us your year.</p>
+          <p style="font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);">Project briefs · calendar · feedback · OKRs · Slack</p>
+        </div>
+        <p class="demo-caption">Paste messy raw material. No structure required.</p>
+      </div>
+      <div class="demo-step">
+        <p class="demo-num">02</p>
+        <h3 class="demo-name">Mirror</h3>
+        <div class="demo-mock">
+          <p class="mock-headline">Here's what we see.</p>
+          <div>
+            <span class="mock-pill">01 themes</span>
+            <span class="mock-pill active">02 housework</span>
+          </div>
+          <div>
+            <span class="mock-pill">03 decoded</span>
+            <span class="mock-pill">04 next</span>
+          </div>
+        </div>
+        <p class="demo-caption">Four reflections. <strong>Housework pattern detected.</strong></p>
+      </div>
+      <div class="demo-step climax">
+        <span class="climax-badge">Climax</span>
+        <p class="demo-num">03</p>
+        <h3 class="demo-name">Glamour move</h3>
+        <div class="demo-mock">
+          <p class="mock-headline">Draft email to Marcus.</p>
+          <p style="font-family: var(--font-ui); font-size: 11px; color: var(--ink-2); font-weight: 600;">Cross-LOB Rollout Lead — FY26 proposal.</p>
+          <p style="font-family: var(--font-ui); font-size: 10px; color: var(--ink-3);">Vouch drafted the ask.</p>
+        </div>
+        <p class="demo-caption"><strong>The reveal.</strong> Vouch turns housework into a scoped role — and drafts the email.</p>
+      </div>
+      <div class="demo-step">
+        <p class="demo-num">04</p>
+        <h3 class="demo-name">Artifact</h3>
+        <div class="demo-mock">
+          <p class="mock-headline">Self-assessment.</p>
+          <p style="font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);">Source-tagged · PDF · Word · Markdown</p>
+        </div>
+        <p class="demo-caption">Editable. Exportable. Yours to walk into the room with.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFFERENTIATORS -->
+  <section>
+    <header class="section-head">
+      <p class="eyebrow">What's different</p>
+      <h2 class="section-title">Three product <em>decisions.</em></h2>
+      <p class="section-sub">Each grounded in research. Each rejects the deficit framing the discourse defaults to.</p>
+    </header>
+    <div class="diff-stack">
+      <div class="diff-item">
+        <span class="diff-num">01</span>
+        <div class="diff-content">
+          <h3>Evidence-first, never tone-policed.</h3>
+          <p>Self-promotion is structurally penalized for first-gen and underrepresented professionals (Wayne & Sun, <em>JAP</em> 2022). Vouch routes assertion through objective data — source-tagged to projects, calendar, feedback. The data does the asserting.</p>
+          <div class="diff-pill">Users get to talk their shit.</div>
+        </div>
+      </div>
+      <div class="diff-item">
+        <span class="diff-num">02</span>
+        <div class="diff-content">
+          <h3>Office housework → glamour move.</h3>
+          <p>Women and underrepresented professionals absorb <strong>4× more service labor</strong> (Williams, Babcock, Padilla). Vouch detects the pattern <em>and drafts the email</em> that converts it into a scoped, promotable mandate.</p>
+          <div class="diff-pill">The only career tool that bridges articulation → trajectory.</div>
+        </div>
+      </div>
+      <div class="diff-item">
+        <span class="diff-num">03</span>
+        <div class="diff-content">
+          <h3>Universal product, wedge intelligence.</h3>
+          <p>No demographic onboarding, ever. The product is universal. The wedge fit lives in the <strong>intelligence layer</strong> — how the AI interprets vague feedback, decodes coded patterns, names the language first-gen professionals actually receive.</p>
+          <div class="diff-pill">The content speaks for itself.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUSTAINABILITY -->
+  <section>
+    <header class="section-head">
+      <p class="eyebrow">Sustainability</p>
+      <h2 class="section-title">Three <em>revenue paths.</em></h2>
+      <p class="section-sub">Community as moat, not market. The audience we built this for stays free, forever.</p>
+    </header>
+    <div class="sustain-grid">
+      <div class="sustain-card">
+        <p class="tier-label">Tier 01 · Wedge</p>
+        <h4>Free for a quarter, for MLT alums.</h4>
+        <p>Rising Leaders · CAP cohort · 15,000+ first-gen and underrepresented operators. 90 days to walk through a full review cycle on Vouch — then convert to the freemium tier with an alum discount.</p>
+      </div>
+      <div class="sustain-card">
+        <p class="tier-label">Tier 02 · Scale</p>
+        <h4>Freemium individual.</h4>
+        <p>Mid-career professionals broadly. Deeper feedback decoding, integrations (Slack, Gmail, Notion, Workday). Per Gallup, only 23% of employees get meaningful feedback — this is universal.</p>
+      </div>
+      <div class="sustain-card">
+        <p class="tier-label">Tier 03 · Margin</p>
+        <h4>B2B partner programs.</h4>
+        <p>Enterprises measuring talent equity (AIG · Deloitte · Black Equity at Work scorecard partners). Standardized objective talent data → measurable input to equity outcomes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing" style="border-bottom: none;">
+    <h2 class="closing-title">Vouch — for yourself, before you ask<br><em>someone else to vouch for you.</em></h2>
+    <p class="hero-sub" style="margin-bottom: 0; max-width: 720px;">Built by Femi Brinson and Austin Hood for the MLT20 AI Buildathon. Powered by Claude Sonnet 4.6 + Opus 4.7 via the Anthropic API. Deployed on Vercel.</p>
+    <div class="closing-links">
+      <div class="link-block">
+        <p class="link-label">Live demo</p>
+        <a href="https://vouch-prototype-sage.vercel.app">vouch-prototype-sage.vercel.app</a>
+      </div>
+      <div class="link-block">
+        <p class="link-label">GitHub</p>
+        <a href="https://github.com/femibrin/vouch-mlt-buildathon">femibrin/vouch-mlt-buildathon</a>
+      </div>
+      <div class="link-block">
+        <p class="link-label">Devpost</p>
+        <a href="#">to be added</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="page-foot">
+  <p>For people who built it · 2026</p>
+</footer>
+
+</body>
+</html>
