@@ -1594,7 +1594,10 @@ async function generateArtifact() {
   } catch (err) {
     console.error('generate failed', err);
     goto('mirror');
-    alert('Generation failed: ' + err.message);
+    const isTimeout = err.message.includes('504') || err.message.includes('timeout');
+    alert(isTimeout
+      ? 'Generation took longer than 60s. Click Generate again — usually succeeds on retry. (Vercel hobby-tier function cap.)'
+      : 'Generation failed: ' + err.message);
   }
 }
 

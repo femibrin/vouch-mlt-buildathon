@@ -18,13 +18,17 @@ const DEFAULT_FRAME = {
   career_acceleration: 'Strategic Decision Memo',
 };
 
-// Model selection per artifact — Opus where prose density matters, Sonnet for the shorter / more structured outputs.
+// Model selection per artifact — All Sonnet 4.6 for tonight's submission to keep every
+// generate call comfortably under Vercel's 60s hobby-tier cap. Opus 4.7 was tipping over
+// on prose-heavy artifacts with full profile context. Sonnet quality is very strong for
+// these structured artifacts; the prompt engineering (frame selection, evidence routing,
+// source tagging) does most of the differentiation work.
 const MODEL_BY_TYPE = {
-  performance_review: 'claude-opus-4-7',
+  performance_review: 'claude-sonnet-4-6',
   promo_case: 'claude-sonnet-4-6',
-  interview_prep: 'claude-opus-4-7',
+  interview_prep: 'claude-sonnet-4-6',
   sponsor_conversation: 'claude-sonnet-4-6',
-  career_acceleration: 'claude-opus-4-7',
+  career_acceleration: 'claude-sonnet-4-6',
 };
 
 module.exports = async (req, res) => {
@@ -48,14 +52,17 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: `type must be one of: ${VALID_TYPES.join(', ')}` });
     }
 
+    // Cap dump size consistent with reflect to keep input tokens manageable
+    const trimmedDump = dump.length > 30000 ? dump.slice(0, 30000) + '\n\n[...truncated for length]' : dump;
+
     const builder = ARTIFACT_PROMPTS[type];
     const extra = { jd, feedback, target_level, sponsor, ask, targets };
-    const userPrompt = builder(dump, reflections, extra);
+    const userPrompt = builder(trimmedDump, reflections, extra);
 
-    const model = MODEL_BY_TYPE[type] || 'claude-opus-4-7';
+    const model = MODEL_BY_TYPE[type] || 'claude-sonnet-4-6';
     const response = await client.messages.create({
       model,
-      max_tokens: 6000,
+      max_tokens: 4500,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
     });
