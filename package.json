@@ -1,0 +1,12 @@
+{
+  "name": "vouch-mlt-buildathon",
+  "version": "0.1.0",
+  "description": "Vouch — career articulation tool. MLT20 AI Buildathon submission.",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
+}

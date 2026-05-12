@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "functions": {
+    "api/reflect.js": { "maxDuration": 60 },
+    "api/generate.js": { "maxDuration": 120 },
+    "api/suggest-jd.js": { "maxDuration": 30 }
+  }
+}
