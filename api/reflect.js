@@ -25,11 +25,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'dump is required and must be at least 30 characters' });
     }
 
+    // Cap dump size to keep total context manageable (~30K chars ≈ 7.5K tokens of input)
+    const trimmedDump = dump.length > 30000 ? dump.slice(0, 30000) + '\n\n[...truncated for length]' : dump;
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: 3000,
       system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: REFLECT_PROMPT(dump) }],
+      messages: [{ role: 'user', content: REFLECT_PROMPT(trimmedDump) }],
     });
 
     const text = response.content[0]?.text || '';

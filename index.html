@@ -682,7 +682,7 @@
       <span class="def-word">vouch</span>
       <span class="def-pron">/vau̇ch/</span>
       <span class="def-pos">v.</span>
-      <span class="def-meaning">to attest, to assert positively. To stand behind a body of work before its author has to.</span>
+      <span class="def-meaning">to attest, to assert positively. To stand firmly behind a body of work.</span>
     </div>
   </div>
 
@@ -1408,7 +1408,10 @@ async function processDump() {
   } catch (err) {
     console.error('reflect failed', err);
     goto('dump');
-    showError('Reflection failed: ' + err.message + '. Check that ANTHROPIC_API_KEY is set in Vercel.');
+    const isTimeout = err.message.includes('504') || err.message.includes('timeout');
+    showError(isTimeout
+      ? 'Claude took longer than 60s to respond (Vercel function timeout). Try clicking Reflect again — usually succeeds on retry. If the dump is very long, trim it down.'
+      : 'Reflection failed: ' + err.message);
   }
 }
 
