@@ -43,15 +43,14 @@ The raw material for the moment you're prepping for. Projects, calendar, feedbac
 - **04** · *Where your evidence points next* — moves your record supports, internal and external
 
 ### 3 · Vouch — generate the artifact
-Five artifact types ship live:
+Four artifact types ship live — one tight story: **tools for the moments you'd otherwise wing it.**
 
 | Trigger | Artifact | Frame |
 |---|---|---|
 | Performance Review | Self-assessment | Redemption Sequence |
 | Promo Case | Committee packet | CAR · Competency-Mapped |
-| Interview Prep | 5 STAR stories + concern-addressing + Q to ask | STAR · JD-Mapped |
+| Interview Prep *(external or internal transfer)* | 5 STAR stories + concern-addressing + Q to ask + networking toolkit | STAR · JD-Mapped |
 | Sponsor Conversation | Briefing memo + Personal Board update + trajectory-over-time | Briefing Memo |
-| Career Acceleration | Strategic decision memo + 90-day plan + networking toolkit | Strategic Memo |
 
 Every artifact: editable, source-tagged, exportable to **PDF / Word / Markdown**.
 
