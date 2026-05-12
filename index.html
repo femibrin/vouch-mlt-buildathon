@@ -3,461 +3,954 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vouch — Career Articulation Engine</title>
+<title>Vouch — Career Articulation, Redesigned.</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf6ed;
-    --surface: #ffffff;
-    --surface-2: #f5efe1;
-    --border: #e5dcc9;
-    --border-strong: #d4c5a8;
-    --accent: #a37340;
-    --accent-bright: #d4a36b;
-    --accent-dim: #8a6a45;
-    --text: #1a1612;
-    --text-muted: #6b6259;
-    --text-dim: #8a7a5e;
-    --sage: #5a8a5a;
-    --rust: #a06b3d;
-    --plum: #7c5d8a;
-    --shadow-sm: 0 1px 2px rgba(26,22,18,0.05);
-    --shadow-md: 0 4px 12px rgba(26,22,18,0.06), 0 1px 3px rgba(26,22,18,0.04);
-    --shadow-lg: 0 16px 40px rgba(26,22,18,0.08), 0 4px 12px rgba(26,22,18,0.04);
-    --focus-ring: 0 0 0 3px rgba(163,115,64,0.25);
+    --paper:        #ffffff;
+    --paper-2:      #f5f5f7;
+    --paper-3:      #fafafa;
+    --ink:          #000000;
+    --ink-2:        #1d1d1f;
+    --ink-3:        #6e6e73;
+    --ink-4:        #86868b;
+    --rule:         #d2d2d7;
+    --rule-2:       #e5e5ea;
+    --pop:          #2050f0;
+    --pop-deep:     #0040d0;
+    --pop-tint:     rgba(32, 80, 240, 0.08);
+    --good:         #248a3d;
+    --warn:         #2050f0;
+    --bad:          #d70015;
+    --font-display: 'DM Serif Display', 'Times New Roman', Georgia, serif;
+    --font-ui:      -apple-system, BlinkMacSystemFont, 'Inter Tight', 'SF Pro Text', system-ui, sans-serif;
+    --focus-ring:   0 0 0 3px rgba(32, 80, 240, 0.32);
   }
   *, *::before, *::after { box-sizing: border-box; }
-  html, body { background: var(--bg); color: var(--text); }
-  body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; min-height: 100vh; }
-  .serif { font-family: 'Fraunces', Georgia, serif; font-feature-settings: "ss01"; }
-  .accent { color: var(--accent); } .muted { color: var(--text-muted); } .dim { color: var(--text-dim); }
-  .sage { color: var(--sage); } .rust { color: var(--rust); } .plum { color: var(--plum); }
-  .surface { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-  .surface-2 { background: var(--surface-2); border: 1px solid var(--border); }
-  .screen { display: none; opacity: 0; transition: opacity 0.4s ease; }
+  html, body { background: var(--paper); color: var(--ink-2); font-family: var(--font-ui); }
+  body {
+    font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 400; color: var(--ink); }
+  em { font-style: italic; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* SCREENS */
+  .screen { display: none; opacity: 0; transition: opacity 200ms ease-out; }
   .screen.active { display: block; opacity: 1; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-strong); font-size: 12px; color: var(--text-muted); background: var(--surface); }
-  .dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; }
-  .dot-amber { background: var(--accent-bright); }
-  .dot-sage { background: #6ba66b; }
-  .dot-rust { background: #c4926d; }
-  .dot-plum { background: #9b7aa8; }
-  .btn-primary { background: var(--accent-bright); color: var(--text); font-weight: 600; padding: 14px 26px; border-radius: 10px; border: none; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; font-size: 15px; line-height: 1.2; min-height: 48px; letter-spacing: -0.005em; }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .btn-primary:focus-visible { outline: none; box-shadow: var(--shadow-md), var(--focus-ring); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  .btn-ghost { border: 1px solid var(--border-strong); color: var(--text); padding: 14px 24px; border-radius: 10px; background: var(--surface); cursor: pointer; font-size: 15px; min-height: 48px; transition: background 0.12s ease; }
-  .btn-ghost:hover { background: var(--surface-2); }
+
+  /* PROGRESS BAR */
+  .progress {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 32px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand-mark {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 400; color: var(--ink);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .brand-mark em { font-style: italic; color: var(--pop); }
+  .progress-meta {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-3);
+  }
+  .progress-meta span { color: var(--ink); font-weight: 600; }
+  .progress-restart {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-3);
+    background: none; border: none; cursor: pointer;
+    transition: color 150ms ease-out;
+  }
+  .progress-restart:hover { color: var(--pop); }
+
+  /* CONTAINERS */
+  .page-narrow { max-width: 720px; margin: 0 auto; padding: 0 32px; }
+  .page-default { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+  .page-wide { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--pop); color: #ffffff;
+    font-family: var(--font-ui);
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 14px 26px; border: none;
+    border-radius: 999px; cursor: pointer;
+    transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 46px;
+  }
+  .btn-primary:hover { background: var(--pop-deep); }
+  .btn-primary:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary-sm { padding: 10px 18px; font-size: 12px; min-height: 36px; }
+
+  .btn-ghost {
+    background: transparent; color: var(--pop);
+    font-family: var(--font-ui);
+    font-size: 13px; font-weight: 600;
+    padding: 14px 18px; border: none;
+    border-radius: 999px; cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: color 150ms ease-out;
+    min-height: 46px;
+  }
+  .btn-ghost::after { content: ' →'; }
+  .btn-ghost:hover { color: var(--pop-deep); }
   .btn-ghost:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .link-accent { color: var(--accent); cursor: pointer; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.1s ease; }
-  .link-accent:hover { border-bottom-color: var(--accent); }
-  .reflection-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; box-shadow: var(--shadow-sm); height: 100%; }
-  .text-input-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; color: var(--text); line-height: 1.65; width: 100%; min-height: 280px; resize: vertical; }
-  .text-input-mock:focus { outline: none; border-color: var(--accent-bright); box-shadow: var(--focus-ring); }
-  .text-input-sm { min-height: auto; padding: 14px 16px; }
-  .doc-mock { background: #ffffff; color: #1a1612; border-radius: 12px; padding: 56px; font-family: 'Fraunces', Georgia, serif; line-height: 1.7; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
-  .doc-mock h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; line-height: 1.2; }
-  .doc-mock h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6b6259; font-family: 'Inter', sans-serif; margin: 28px 0 12px; }
-  .doc-mock h3 { font-size: 17px; font-weight: 600; font-family: 'Inter', sans-serif; margin: 16px 0 6px; }
-  .doc-mock h4 { font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; margin: 14px 0 4px; }
-  .doc-mock p { margin: 0 0 12px; font-size: 16px; }
-  .doc-mock ul, .doc-mock ol { margin: 0 0 16px; padding-left: 28px; font-size: 16px; }
+  .btn-ghost-noarrow::after { content: ''; }
+  .btn-ghost-sm { padding: 8px 14px; font-size: 12px; min-height: 32px; }
+
+  .btn-quiet {
+    background: transparent; color: var(--ink-3);
+    font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+    padding: 10px 14px; border: 1px solid var(--rule);
+    border-radius: 6px; cursor: pointer;
+    transition: all 150ms ease-out;
+  }
+  .btn-quiet:hover { color: var(--ink); border-color: var(--ink-3); }
+
+  .link-pop {
+    color: var(--pop); text-decoration: none; font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom-color 150ms ease-out;
+    cursor: pointer;
+  }
+  .link-pop:hover { border-bottom-color: var(--pop); }
+
+  /* SECTION HEAD */
+  .section-head { margin-bottom: 48px; max-width: 800px; }
+  .eyebrow {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--pop); margin-bottom: 24px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 48px; font-weight: 400;
+    line-height: 0.96; letter-spacing: -0.03em;
+    color: var(--ink); margin-bottom: 20px;
+  }
+  .section-title em { font-style: italic; color: var(--pop); }
+  .section-sub {
+    font-family: var(--font-ui);
+    font-size: 17px; line-height: 1.5;
+    letter-spacing: -0.005em; color: var(--ink-3);
+  }
+
+  /* INPUTS */
+  .input {
+    background: var(--paper); color: var(--ink-2);
+    font-family: var(--font-ui);
+    font-size: 15px; line-height: 1.5;
+    padding: 14px 16px;
+    border: 1px solid var(--rule);
+    border-radius: 6px; width: 100%;
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  }
+  .input:focus { outline: none; border-color: var(--pop); box-shadow: var(--focus-ring); }
+  .input::placeholder { color: var(--ink-4); }
+  .textarea { min-height: 280px; resize: vertical; }
+  .textarea-sm { min-height: 120px; }
+  .textarea-md { min-height: 180px; }
+
+  /* FIELD LABEL */
+  .field { margin-bottom: 28px; }
+  .field-label {
+    display: flex; align-items: baseline; gap: 12px;
+    font-family: var(--font-ui);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink); margin-bottom: 10px;
+    letter-spacing: -0.005em;
+  }
+  .field-hint {
+    font-weight: 400; font-size: 13px;
+    color: var(--ink-3); margin-left: auto;
+    font-style: normal;
+  }
+  .field-helper {
+    font-family: var(--font-ui);
+    font-size: 13px; color: var(--ink-3);
+    margin-top: 8px; line-height: 1.5;
+  }
+
+  /* TRIGGER CARDS */
+  .trigger-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  @media (min-width: 880px) { .trigger-grid { grid-template-columns: repeat(2, 1fr); } }
+  .trigger-card {
+    background: var(--paper);
+    padding: 28px 28px;
+    text-align: left;
+    cursor: pointer;
+    border: none;
+    transition: background 150ms ease-out;
+    position: relative;
+  }
+  .trigger-card:hover { background: var(--paper-2); }
+  .trigger-card.selected { background: var(--pop-tint); }
+  .trigger-card.selected::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--pop);
+  }
+  .trigger-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 26px;
+    color: var(--pop);
+    line-height: 1;
+    display: block;
+    margin-bottom: 14px;
+  }
+  .trigger-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .trigger-desc {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+
+  /* NUMERAL */
+  .numeral {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 38px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--pop);
+  }
+
+  /* QUOTE PILL */
+  .quote-pill {
+    background: var(--paper-2); color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 14px; font-weight: 600;
+    letter-spacing: -0.01em; line-height: 1.4;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border-left: 2px solid var(--pop);
+    margin: 12px 0;
+  }
+  .quote-pill em { font-style: italic; color: var(--pop); font-weight: 600; }
+
+  /* REFLECTION BLOCK */
+  .reflection {
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .reflection:last-child { border-bottom: none; }
+  .reflection-head {
+    display: flex; align-items: baseline;
+    gap: 18px; margin-bottom: 18px;
+  }
+  .reflection-num {
+    font-family: var(--font-display);
+    font-style: italic; font-size: 36px;
+    color: var(--pop); line-height: 1;
+    flex-shrink: 0; min-width: 56px;
+  }
+  .reflection-title {
+    font-family: var(--font-ui);
+    font-size: 19px; font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--ink); line-height: 1.2;
+    flex: 1;
+  }
+  .reflection-body {
+    padding-left: 74px;
+    font-family: var(--font-ui);
+    font-size: 14px; line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .reflection-body p { margin-bottom: 12px; }
+  .reflection-body p:last-child { margin-bottom: 0; }
+  .reflection-sub-label {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--ink-3);
+    margin-top: 20px; margin-bottom: 10px;
+  }
+
+  /* STATE TAGS */
+  .state {
+    font-family: var(--font-ui);
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    background: none; border: none;
+    border-radius: 0; padding: 0;
+    white-space: nowrap;
+  }
+  .state-good { color: var(--good); }
+  .state-warn { color: var(--pop); }
+  .state-bad  { color: var(--bad); }
+
+  /* META STRIP */
+  .meta-strip {
+    padding: 32px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 720px) { .meta-strip { grid-template-columns: repeat(2, 1fr); } }
+  .meta-item .meta-num {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 400;
+    line-height: 1; letter-spacing: -0.025em;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .meta-item .meta-num em { font-style: italic; color: var(--pop); }
+  .meta-item .meta-label {
+    font-family: var(--font-ui);
+    font-size: 12px; font-weight: 500;
+    color: var(--ink-3); letter-spacing: -0.005em;
+  }
+
+  /* GLAMOUR MOVE CALLOUT */
+  .glamour-callout {
+    background: var(--pop-tint);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+  .glamour-callout-label {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--pop); margin-bottom: 12px;
+  }
+  .glamour-callout-text {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 400;
+    color: var(--ink); line-height: 1.3;
+    letter-spacing: -0.015em; margin-bottom: 18px;
+  }
+  .glamour-callout-text em { font-style: italic; color: var(--pop); }
+
+  /* DOC MOCK (Apple Pages aesthetic) */
+  .doc-mock {
+    background: var(--paper);
+    color: var(--ink-2);
+    border-radius: 12px;
+    padding: 56px;
+    font-family: var(--font-ui);
+    line-height: 1.6;
+    border: 1px solid var(--rule);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  }
+  .doc-mock h1 {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 400; line-height: 1;
+    letter-spacing: -0.025em; margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .doc-mock h1 em { font-style: italic; color: var(--pop); }
+  .doc-mock h2 {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--pop); margin: 36px 0 12px;
+  }
+  .doc-mock h3 {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 400; line-height: 1.1;
+    letter-spacing: -0.02em; margin: 24px 0 8px;
+    color: var(--ink);
+  }
+  .doc-mock h4 {
+    font-family: var(--font-ui);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink); margin: 16px 0 6px;
+    letter-spacing: -0.005em;
+  }
+  .doc-mock p { font-size: 15px; margin: 0 0 12px; color: var(--ink-2); }
+  .doc-mock ul, .doc-mock ol { font-size: 15px; margin: 0 0 16px; padding-left: 24px; color: var(--ink-2); }
   .doc-mock li { margin-bottom: 6px; }
-  .doc-mock strong { font-weight: 600; }
-  .doc-mock em { font-style: italic; color: #4a4239; }
-  .doc-mock table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-family: 'Inter', sans-serif; font-size: 14px; }
-  .doc-mock th, .doc-mock td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e5dcc9; }
-  .doc-mock th { font-weight: 600; background: #faf6ed; }
-  .doc-mock hr { border: 0; border-top: 1px solid #e5dcc9; margin: 24px 0; }
-  .doc-mock blockquote { border-left: 3px solid #d4a36b; padding-left: 16px; margin: 16px 0; color: #4a4239; font-style: italic; }
-  .progress-strip { position: fixed; top: 0; left: 0; right: 0; background: rgba(250,246,237,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 24px; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .progress-dot { width: 8px; height: 8px; background: var(--border-strong); border-radius: 999px; transition: all 0.3s ease; }
-  .progress-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
-  .progress-dot.complete { background: var(--accent-bright); }
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(26,22,18,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .doc-mock strong { color: var(--ink); font-weight: 600; }
+  .doc-mock em { font-style: italic; color: var(--ink); }
+  .doc-mock table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-family: var(--font-ui); font-size: 13px; }
+  .doc-mock th, .doc-mock td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--rule); }
+  .doc-mock th { font-weight: 600; background: var(--paper-2); color: var(--ink); }
+  .doc-mock hr { border: 0; border-top: 1px solid var(--rule); margin: 24px 0; }
+  .doc-mock blockquote {
+    background: var(--paper-2);
+    border-left: 2px solid var(--pop);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: var(--ink-2);
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* FRAME / PRIVACY STRIP */
+  .meta-bar {
+    display: flex; flex-wrap: wrap;
+    justify-content: space-between; align-items: center;
+    gap: 16px; margin-bottom: 18px;
+  }
+  .meta-bar-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .meta-bar-label {
+    font-family: var(--font-ui);
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--ink-3);
+  }
+  .meta-bar-value {
+    font-family: var(--font-ui);
+    font-size: 13px; font-weight: 600;
+    color: var(--ink); letter-spacing: -0.005em;
+  }
+  .meta-bar-link {
+    font-family: var(--font-ui);
+    font-size: 12px; font-weight: 500;
+    color: var(--pop); cursor: pointer;
+  }
+  .meta-bar-link:hover { color: var(--pop-deep); }
+  .meta-bar-note {
+    font-family: var(--font-ui);
+    font-size: 12px; color: var(--ink-4);
+    font-style: italic;
+  }
+
+  /* RAIL (artifact sidebar) */
+  .rail-section { margin-bottom: 32px; }
+  .rail-label {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--pop); margin-bottom: 14px;
+  }
+  .rail-list { display: flex; flex-direction: column; }
+  .rail-link {
+    font-family: var(--font-ui);
+    font-size: 14px; font-weight: 500;
+    color: var(--ink-2);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule-2);
+    cursor: pointer;
+    transition: color 150ms ease-out;
+    text-align: left;
+    background: none;
+    border-top: none; border-left: none; border-right: none;
+    border-radius: 0;
+    width: 100%;
+  }
+  .rail-link:last-child { border-bottom: none; }
+  .rail-link:hover { color: var(--pop); }
+  .rail-link::after { content: ' →'; color: var(--ink-4); }
+  .rail-link:hover::after { color: var(--pop); }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 100; display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
   .modal-backdrop.show { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: var(--shadow-lg); }
-  .modal-sm { max-width: 480px; }
-  .loader-dot { width: 12px; height: 12px; background: var(--accent-bright); border-radius: 999px; display: inline-block; margin: 0 4px; animation: bounce 1.4s ease-in-out infinite; }
+  .modal {
+    background: var(--paper); color: var(--ink-2);
+    border: 1px solid var(--rule); border-radius: 12px;
+    max-width: 720px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    padding: 40px 48px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.12);
+  }
+  .modal-sm { max-width: 480px; padding: 32px 36px; }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 32px; font-weight: 400;
+    letter-spacing: -0.025em; color: var(--ink);
+    margin-bottom: 8px; line-height: 1;
+  }
+  .modal-title em { font-style: italic; color: var(--pop); }
+  .modal-close {
+    font-size: 24px; line-height: 1;
+    color: var(--ink-3); background: none; border: none;
+    cursor: pointer; padding: 0;
+  }
+  .modal-close:hover { color: var(--ink); }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+
+  /* EMAIL DRAFT INSIDE MODAL */
+  .email-draft {
+    background: var(--paper-2);
+    color: var(--ink-2);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: var(--font-ui);
+    font-size: 14px; line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .email-header {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px; margin-bottom: 14px;
+    color: var(--ink-3); font-size: 13px;
+    white-space: normal;
+  }
+  .email-header strong { color: var(--ink); font-weight: 600; }
+
+  /* LOADER */
+  .loader-row { display: flex; gap: 8px; justify-content: center; }
+  .loader-dot {
+    width: 10px; height: 10px;
+    background: var(--pop);
+    border-radius: 999px; display: inline-block;
+    animation: dot-bounce 1.4s ease-in-out infinite;
+  }
   .loader-dot:nth-child(2) { animation-delay: 0.15s; }
   .loader-dot:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes bounce { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-12px); opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } .loader-dot { animation: none; opacity: 0.7; } }
-  .email-draft { background: var(--bg); color: var(--text); border-radius: 12px; padding: 28px; font-family: 'Inter', sans-serif; line-height: 1.65; font-size: 14px; border: 1px solid var(--border); white-space: pre-wrap; }
-  .email-header { border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; color: var(--text-muted); font-size: 13px; white-space: normal; }
-  .email-header strong { color: var(--text); font-weight: 600; }
-  .trigger-card { cursor: pointer; transition: box-shadow 0.15s ease, transform 0.1s ease; }
-  .trigger-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-  .trigger-card.selected { border-color: var(--accent-bright) !important; box-shadow: 0 0 0 2px rgba(212,163,107,0.18), var(--shadow-sm); }
-  .error-banner { background: #fbe9d8; border: 1px solid var(--rust); color: #6b3a1c; padding: 12px 16px; border-radius: 10px; font-size: 14px; margin: 12px 0; }
-  @media (max-width: 768px) {
-    .progress-strip { padding: 12px 16px; }
-    .doc-mock { padding: 32px 24px; }
-    .reflection-card { padding: 22px; }
-    .modal { padding: 24px; border-radius: 16px; }
-    .btn-primary, .btn-ghost { width: 100%; }
+  @keyframes dot-bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(-10px); opacity: 1; }
   }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .loader-dot { animation: none; opacity: 0.7; }
+  }
+
+  /* ERROR */
+  .error-banner {
+    background: rgba(215, 0, 21, 0.06);
+    border: 1px solid var(--bad);
+    color: var(--bad);
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin: 16px 0;
+    font-weight: 500;
+  }
+
+  /* FOOTER */
+  .page-foot {
+    border-top: 1px solid var(--rule);
+    padding: 24px 32px; text-align: center;
+  }
+  .page-foot p {
+    font-family: var(--font-ui);
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.01em; color: var(--ink-3);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 880px) {
+    .section-title { font-size: 36px; }
+    .trigger-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .progress { padding: 12px 20px; }
+    .page-narrow, .page-default, .page-wide { padding: 0 20px; }
+    .section-title { font-size: 30px; }
+    .doc-mock { padding: 32px 24px; }
+    .reflection-body { padding-left: 0; }
+    .reflection-num { font-size: 28px; min-width: 44px; }
+    .modal { padding: 24px; }
+    .btn-primary, .btn-ghost { width: 100%; }
+    .meta-bar { flex-direction: column; align-items: flex-start; }
+  }
+
   .hidden-input { display: none; }
 </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-<nav class="progress-strip">
-  <div class="flex items-center gap-3">
-    <span class="serif text-xl font-medium tracking-tight">Vouch</span>
-    <span class="dim text-xs serif italic hidden sm:inline">— evidence engine</span>
-  </div>
-  <div class="flex items-center gap-2" id="progress-dots" role="progressbar" aria-label="Flow progress">
-    <span class="progress-dot active" data-step="0"></span>
-    <span class="progress-dot" data-step="1"></span>
-    <span class="progress-dot" data-step="2"></span>
-    <span class="progress-dot" data-step="3"></span>
-    <span class="progress-dot" data-step="4"></span>
-  </div>
-  <button class="btn-ghost text-sm" style="padding: 8px 14px; min-height: 36px;" onclick="restart()">Restart</button>
+<!-- PROGRESS -->
+<nav class="progress">
+  <span class="brand-mark">V<em>·</em></span>
+  <span class="progress-meta hidden sm:inline" id="progress-meta">Career articulation · redesigned</span>
+  <button class="progress-restart" onclick="restart()">Restart</button>
 </nav>
 
-<main style="padding-top: 72px;">
+<main>
 
+<!-- ============== LANDING ============== -->
 <section class="screen active" id="screen-landing" aria-labelledby="landing-title">
-  <div class="relative max-w-5xl mx-auto px-6 pt-20 pb-20 text-center">
-    <p class="muted text-xs uppercase tracking-[0.28em] mb-7">Closing the evidence gap</p>
-    <h1 id="landing-title" class="serif text-5xl md:text-7xl font-light leading-[1.05] mb-8 tracking-tight">
-      The mirror that helps you<br>
-      <span class="italic" style="color: var(--accent); font-weight:300;">say what you've done.</span>
-    </h1>
-    <p class="muted text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
-      Most careers lose evidence in translation. Vouch keeps the receipts — and hands them back as the artifact you walk into your next conversation with.
-    </p>
-    <div class="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto">
-      <button class="btn-primary" onclick="goto('profile')">Start with what's coming up →</button>
-      <button class="btn-ghost" onclick="goto('trigger')">Skip setup · see an example</button>
+  <div class="page-default" style="padding-top: 96px; padding-bottom: 56px;">
+    <p class="eyebrow">Career articulation, redesigned.</p>
+    <h1 id="landing-title" class="section-title" style="font-size: 72px; line-height: 0.92; letter-spacing: -0.04em; margin-bottom: 28px;">Say what<br><em>you've done.</em></h1>
+    <p class="section-sub" style="font-size: 19px; max-width: 640px; margin-bottom: 32px;">A mirror for the work you can't easily describe. Two minutes in, one artifact out.</p>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+      <button class="btn-primary" onclick="goto('profile')">Start</button>
+      <button class="btn-ghost" onclick="goto('trigger')">See example</button>
     </div>
-    <p class="dim text-sm mt-12 italic serif">Built for professionals navigating careers in the AI age.</p>
+  </div>
+
+  <div class="page-default">
+    <div class="meta-strip">
+      <div class="meta-item">
+        <div class="meta-num">4</div>
+        <div class="meta-label">Reflections</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-num">2<em>m</em></div>
+        <div class="meta-label">Average dump</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-num">1</div>
+        <div class="meta-label">Artifact, source-tagged</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-num">0</div>
+        <div class="meta-label">Hallucinations</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-default" style="padding-top: 32px; padding-bottom: 56px;">
+    <p style="font-family: var(--font-ui); font-size: 12px; color: var(--ink-4); letter-spacing: 0.01em;">Built for professionals navigating careers in the AI age.</p>
   </div>
 </section>
 
+<!-- ============== PROFILE ============== -->
 <section class="screen" id="screen-profile" aria-labelledby="profile-title">
-  <div class="max-w-5xl mx-auto px-6 py-16">
-    <div class="max-w-3xl mb-10">
-      <p class="muted text-sm mb-3">Step 1 of 4 · Profile</p>
-      <h2 id="profile-title" class="serif text-4xl md:text-5xl font-light mb-4">Set up your profile.</h2>
-      <p class="muted text-lg">Drop in your resume, a target job description, and your LinkedIn. This gives Vouch the standing context to write better reflections and artifacts. You can skip and come back to this any time.</p>
+  <div class="page-narrow" style="padding-top: 64px; padding-bottom: 72px;">
+    <header class="section-head">
+      <p class="eyebrow">Step 01 of 04</p>
+      <h2 id="profile-title" class="section-title">Set up your<br><em>profile.</em></h2>
+      <p class="section-sub">Drop in your resume, a target JD, and your LinkedIn. This gives Vouch the standing context to write better reflections and artifacts. You can skip and come back to this any time.</p>
+    </header>
+
+    <div class="field">
+      <label class="field-label" for="profile-resume">
+        Your resume
+        <span class="field-hint">paste the text now — PDF upload in Phase 2</span>
+      </label>
+      <textarea class="input textarea" id="profile-resume" placeholder="Paste your resume here. Include role, company, dates, bullets — the messier and more detailed, the better."></textarea>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 space-y-5">
-        <div>
-          <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="profile-resume">Your resume <span class="dim normal-case tracking-normal">— paste the text now; PDF upload coming in Phase 2</span></label>
-          <textarea class="text-input-mock" id="profile-resume" style="min-height: 280px;" placeholder="Paste your resume here. Include role / company / dates / bullets — the messier and more detailed, the better. Vouch reads it as your standing context for every artifact going forward."></textarea>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-            <label class="text-xs uppercase tracking-wider" style="color: var(--accent);" for="profile-jd">Target job description</label>
-            <button class="text-xs link-accent" onclick="suggestJD()" id="suggest-jd-btn">Find one for me →</button>
-          </div>
-          <textarea class="text-input-mock" id="profile-jd" style="min-height: 180px;" placeholder="Paste a JD you're considering, OR click 'Find one for me' to have Claude generate a plausible stretch role based on your resume."></textarea>
-          <p class="dim text-xs mt-2 italic" id="jd-suggest-status"></p>
-        </div>
-
-        <div>
-          <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="profile-linkedin">LinkedIn URL <span class="dim normal-case tracking-normal">— optional</span></label>
-          <input type="url" class="text-input-mock text-input-sm" id="profile-linkedin" placeholder="https://linkedin.com/in/your-handle" />
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Why this matters</p>
-          <p class="text-sm muted leading-relaxed">Most careers lose evidence in translation between what you did and what gets seen. Profile is your <em>standing context</em> — every artifact uses it as baseline so the AI knows your shape without re-asking.</p>
-        </div>
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Privacy</p>
-          <p class="text-sm muted leading-relaxed">Profile is stored in your browser only (localStorage). Nothing leaves your device until you trigger a Vouch generation.</p>
-        </div>
-        <div class="surface rounded-xl p-5" style="background: rgba(212,163,107,0.06); border-color: var(--border-strong);">
-          <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Coming in Phase 2</p>
-          <ul class="text-sm muted space-y-1.5 leading-relaxed">
-            <li>· PDF resume upload (Claude reads PDFs natively)</li>
-            <li>· LinkedIn parse for role/company history</li>
-            <li>· Live job-board search</li>
-          </ul>
-        </div>
-      </div>
+    <div class="field">
+      <label class="field-label" for="profile-jd">
+        Target job description
+        <span class="field-hint"><span class="link-pop" onclick="suggestJD()" id="suggest-jd-btn">Find one for me</span></span>
+      </label>
+      <textarea class="input textarea textarea-md" id="profile-jd" placeholder="Paste a JD you're considering — or click 'Find one for me' to have Claude generate a plausible stretch role based on your resume."></textarea>
+      <p class="field-helper" id="jd-suggest-status"></p>
     </div>
 
-    <div class="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-      <button class="btn-primary" onclick="saveProfileAndGo()">Save & continue →</button>
+    <div class="field">
+      <label class="field-label" for="profile-linkedin">
+        LinkedIn URL
+        <span class="field-hint">optional</span>
+      </label>
+      <input type="url" class="input" id="profile-linkedin" placeholder="https://linkedin.com/in/your-handle" />
+    </div>
+
+    <p class="field-helper" style="margin-top: 32px; margin-bottom: 24px;">Profile is stored in your browser only. Nothing leaves your device until you trigger a Vouch generation.</p>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+      <button class="btn-primary" onclick="saveProfileAndGo()">Save & continue</button>
       <button class="btn-ghost" onclick="goto('trigger')">Skip for now</button>
-      <span class="muted text-sm">Saved on your device. You can come back to edit any time.</span>
     </div>
   </div>
 </section>
 
+<!-- ============== TRIGGER ============== -->
 <section class="screen" id="screen-trigger" aria-labelledby="trigger-title">
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="max-w-3xl mb-12">
-      <p class="muted text-sm mb-3">Welcome back.</p>
-      <h2 id="trigger-title" class="serif text-4xl md:text-5xl font-light mb-4">What's coming up?</h2>
-      <p class="muted text-lg">Pick a moment. Vouch will help you walk in ready.</p>
+  <div class="page-default" style="padding-top: 64px; padding-bottom: 72px;">
+    <header class="section-head">
+      <p class="eyebrow">Step 02 of 04</p>
+      <h2 id="trigger-title" class="section-title">What's <em>coming up?</em></h2>
+      <p class="section-sub">Pick the moment you're preparing for. Vouch will help you walk in ready.</p>
+    </header>
+
+    <div class="trigger-grid">
+      <button class="trigger-card selected" data-type="performance_review">
+        <span class="trigger-num">01</span>
+        <h3 class="trigger-title">Performance review</h3>
+        <p class="trigger-desc">Year-end self-assessment. Mid-year check-in. Calibration prep.</p>
+      </button>
+      <button class="trigger-card" data-type="promo_case">
+        <span class="trigger-num">02</span>
+        <h3 class="trigger-title">Promo case</h3>
+        <p class="trigger-desc">Build the packet your sponsor walks into committee with.</p>
+      </button>
+      <button class="trigger-card" data-type="interview_prep">
+        <span class="trigger-num">03</span>
+        <h3 class="trigger-title">Interview prep</h3>
+        <p class="trigger-desc">External role or internal transfer. Map your stories to the JD. Address concerns directly.</p>
+      </button>
+      <button class="trigger-card" data-type="sponsor_conversation">
+        <span class="trigger-num">04</span>
+        <h3 class="trigger-title">Sponsor conversation</h3>
+        <p class="trigger-desc">Briefing memo + the ask for your skip-level. Personal Board update inside.</p>
+      </button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <button class="surface rounded-xl p-6 text-left trigger-card selected" data-type="performance_review">
-        <div class="flex items-start justify-between mb-3">
-          <span class="serif text-2xl">Performance review</span>
-          <span class="pill"><span class="dot dot-amber"></span>Selected</span>
-        </div>
-        <p class="muted text-sm">Year-end self-assessment. Mid-year check-in. Calibration prep.</p>
-      </button>
-      <button class="surface rounded-xl p-6 text-left trigger-card" data-type="promo_case">
-        <span class="serif text-2xl block mb-3">Promo case</span>
-        <p class="muted text-sm">Build the packet your sponsor walks into committee with.</p>
-      </button>
-      <button class="surface rounded-xl p-6 text-left trigger-card" data-type="interview_prep">
-        <span class="serif text-2xl block mb-3">Interview prep</span>
-        <p class="muted text-sm">External role or internal transfer. Map your stories to the JD. Address concerns directly.</p>
-      </button>
-      <button class="surface rounded-xl p-6 text-left trigger-card" data-type="sponsor_conversation">
-        <span class="serif text-2xl block mb-3">Sponsor conversation</span>
-        <p class="muted text-sm">Briefing + the ask for your skip-level. Personal Board update inside.</p>
-      </button>
-    </div>
-    <div class="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-      <button class="btn-primary" onclick="goto('dump')">Continue <span id="continue-label">with Performance review</span> →</button>
-      <span class="muted text-sm">Seeded with an example. Edit anything before reflecting.</span>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 40px;">
+      <button class="btn-primary" onclick="goto('dump')">Continue with <span id="continue-label">Performance review</span></button>
+      <p style="font-family: var(--font-ui); font-size: 13px; color: var(--ink-3); margin: 0;">Seeded with an anonymized example. Edit anything before reflecting.</p>
     </div>
   </div>
 </section>
 
+<!-- ============== DUMP ============== -->
 <section class="screen" id="screen-dump" aria-labelledby="dump-title">
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="max-w-3xl mb-10">
-      <p class="muted text-sm mb-3">Step 2 of 4 · Dump</p>
-      <h2 id="dump-title" class="serif text-4xl md:text-5xl font-light mb-4">Tell us what your year looked like.</h2>
-      <p class="muted text-lg" id="dump-subtitle">Paste project briefs, calendar exports, Slack threads, OKR docs, the actual review you got back. No structure required — that's our job.</p>
+  <div class="page-default" style="padding-top: 64px; padding-bottom: 72px;">
+    <header class="section-head">
+      <p class="eyebrow">Step 03 of 04 · <span id="dump-context-label">Performance review</span></p>
+      <h2 id="dump-title" class="section-title">Tell us what your year <em>looked like.</em></h2>
+      <p class="section-sub" id="dump-subtitle">Paste project briefs, calendar exports, Slack threads, OKR docs, the actual review you got back. No structure required — that's our job.</p>
+    </header>
+
+    <div class="field">
+      <label class="field-label" for="dump-input">
+        Your raw dump
+        <span class="field-hint">paste anything — messy is fine</span>
+      </label>
+      <textarea class="input textarea" id="dump-input" style="min-height: 320px;"></textarea>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 space-y-5">
-        <div>
-          <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="dump-input">Your raw dump</label>
-          <textarea class="text-input-mock" id="dump-input" aria-label="Paste anything from your year"></textarea>
-        </div>
-
-        <div id="extra-promo_case" class="hidden-input">
-          <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="target-level">Target level</label>
-          <input type="text" class="text-input-mock text-input-sm" id="target-level" placeholder="Principal Product Manager" />
-        </div>
-
-        <div id="extra-interview_prep" class="hidden-input space-y-4">
-          <div>
-            <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="jd-input">Job description <span class="dim normal-case tracking-normal">— paste the text, or drop in a link</span></label>
-            <textarea class="text-input-mock" id="jd-input" style="min-height: 260px;" placeholder="Paste the JD here, or paste a link to it (LinkedIn, Greenhouse, company careers page). The more detail the better — required quals + bonus quals + about-the-team."></textarea>
-          </div>
-          <div>
-            <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="feedback-input">Your notes on the role <span class="dim normal-case tracking-normal">— recruiter signal, pros / cons, anything you've heard</span></label>
-            <textarea class="text-input-mock" id="feedback-input" style="min-height: 180px;" placeholder='e.g., "Recruiter said HM liked my customer-facing background. Concerned about API depth vs. other candidates. Comp range is top of band for the right candidate."'></textarea>
-          </div>
-        </div>
-
-        <div id="extra-sponsor_conversation" class="hidden-input space-y-4">
-          <div>
-            <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="sponsor-input">Sponsor profile <span class="dim normal-case tracking-normal">— optional; include LinkedIn URL if helpful</span></label>
-            <textarea class="text-input-mock" id="sponsor-input" style="min-height: 160px;" placeholder="Who is your sponsor? Their role / title / how long they've known you / their relationship to the decision-makers you need. LinkedIn URL is welcome — Vouch will use it for context."></textarea>
-          </div>
-          <div>
-            <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="ask-input">Your ask</label>
-            <input type="text" class="text-input-mock text-input-sm" id="ask-input" placeholder="What specifically do you want from this conversation?" />
-          </div>
-        </div>
-
-        <div id="extra-career_acceleration" class="hidden-input">
-          <label class="block text-xs uppercase tracking-wider mb-2" style="color: var(--accent);" for="targets-input">Target tracks or companies <span class="dim normal-case tracking-normal">— optional, the more direction the sharper the read</span></label>
-          <textarea class="text-input-mock" id="targets-input" style="min-height: 220px;" placeholder="What directions are you considering? Specific roles, companies, archetypes? Stay vs. switch? Compensation floor / target? Timeline?"></textarea>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">For: <span id="dump-context-label">Performance review</span></p>
-          <p class="text-sm muted leading-relaxed">Seeded with an anonymized example so you can see how it works. Edit or replace anything.</p>
-        </div>
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-3" style="color: var(--accent);">What helps most</p>
-          <ul class="text-sm muted space-y-2 leading-relaxed" id="dump-helps">
-            <li>· The actual review text you got</li>
-            <li>· Project briefs or PRDs you led</li>
-            <li>· Calendar / 1:1 notes</li>
-            <li>· Vague feedback you've been chewing on</li>
-            <li>· Your goals for the next role</li>
-          </ul>
-        </div>
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Privacy</p>
-          <p class="text-sm muted leading-relaxed">Session-only by default. Nothing is stored after you close the tab.</p>
-        </div>
+    <div id="extra-promo_case" class="hidden-input">
+      <div class="field">
+        <label class="field-label" for="target-level">Target level</label>
+        <input type="text" class="input" id="target-level" placeholder="Principal Product Manager" />
       </div>
     </div>
 
-    <div id="dump-error" class="error-banner hidden-input mt-6"></div>
+    <div id="extra-interview_prep" class="hidden-input">
+      <div class="field">
+        <label class="field-label" for="jd-input">
+          Job description
+          <span class="field-hint">paste the text or drop a link</span>
+        </label>
+        <textarea class="input textarea-md" id="jd-input" style="min-height: 220px;" placeholder="Paste the JD here, or paste a link (LinkedIn, Greenhouse, company careers page)."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="feedback-input">
+          Your notes on the role
+          <span class="field-hint">recruiter signal, pros / cons, anything you've heard</span>
+        </label>
+        <textarea class="input textarea-sm" id="feedback-input" style="min-height: 160px;"></textarea>
+      </div>
+    </div>
 
-    <div class="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-      <button class="btn-primary" id="reflect-btn" onclick="processDump()">Reflect →</button>
-      <button class="btn-ghost" onclick="goto('trigger')">← Back</button>
-      <span class="muted text-sm">Calls Claude. ~10–20 seconds.</span>
+    <div id="extra-sponsor_conversation" class="hidden-input">
+      <div class="field">
+        <label class="field-label" for="sponsor-input">
+          Sponsor profile
+          <span class="field-hint">optional · LinkedIn URL welcome</span>
+        </label>
+        <textarea class="input textarea-sm" id="sponsor-input" style="min-height: 140px;" placeholder="Who is your sponsor? Their role, how long they've known you, their relationship to the decision-makers you need."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="ask-input">Your ask</label>
+        <input type="text" class="input" id="ask-input" placeholder="What specifically do you want from this conversation?" />
+      </div>
+    </div>
+
+    <p class="field-helper">What helps most: <span id="dump-helps-inline">the actual review text you got, project briefs you led, calendar / 1:1 notes, vague feedback you've been chewing on, your goals for the next role</span>.</p>
+
+    <div id="dump-error" class="error-banner hidden-input"></div>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 40px;">
+      <button class="btn-primary" id="reflect-btn" onclick="processDump()">Reflect</button>
+      <button class="btn-ghost btn-ghost-noarrow" onclick="goto('trigger')">← Back</button>
+      <p style="font-family: var(--font-ui); font-size: 13px; color: var(--ink-3); margin: 0;">Calls Claude. ~10–20 seconds.</p>
     </div>
   </div>
 </section>
 
+<!-- ============== LOADING ============== -->
 <section class="screen" id="screen-loading">
-  <div class="max-w-2xl mx-auto px-6 py-32 text-center">
-    <div class="mb-10" aria-live="polite">
+  <div class="page-narrow" style="padding-top: 120px; padding-bottom: 96px; text-align: center;">
+    <div class="loader-row" style="margin-bottom: 40px;" aria-live="polite">
       <span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span>
     </div>
-    <h2 class="serif text-4xl font-light mb-4" id="loading-title">Reading your year.</h2>
-    <p class="muted text-base mb-12 max-w-md mx-auto" id="loading-subtitle">Pulling out themes, wins, and what's missing.</p>
-    <div class="space-y-3 max-w-sm mx-auto text-left" id="loading-steps">
-      <div class="flex items-center gap-3 text-sm"><span class="accent">●</span><span>Surfacing themes...</span></div>
-      <div class="flex items-center gap-3 text-sm"><span class="dim">○</span><span class="dim">Structuring wins in CAR</span></div>
-      <div class="flex items-center gap-3 text-sm"><span class="dim">○</span><span class="dim">Decoding feedback</span></div>
-      <div class="flex items-center gap-3 text-sm"><span class="dim">○</span><span class="dim">Detecting housework</span></div>
-      <div class="flex items-center gap-3 text-sm"><span class="dim">○</span><span class="dim">Mapping next moves</span></div>
+    <h2 class="section-title" id="loading-title" style="font-size: 42px; margin-bottom: 16px;">Reading your <em>year.</em></h2>
+    <p class="section-sub" id="loading-subtitle">Pulling out themes, wins, and what's missing.</p>
+    <div style="margin-top: 56px; text-align: left; max-width: 360px; margin-left: auto; margin-right: auto;" id="loading-steps">
+      <div class="loading-step" style="padding: 10px 0; display: flex; gap: 12px; font-size: 14px; color: var(--ink-3);"><span style="color: var(--pop); font-weight: 600;">●</span><span>Surfacing themes...</span></div>
+      <div class="loading-step" style="padding: 10px 0; display: flex; gap: 12px; font-size: 14px; color: var(--ink-4);"><span>○</span><span>Structuring wins in CAR</span></div>
+      <div class="loading-step" style="padding: 10px 0; display: flex; gap: 12px; font-size: 14px; color: var(--ink-4);"><span>○</span><span>Decoding feedback</span></div>
+      <div class="loading-step" style="padding: 10px 0; display: flex; gap: 12px; font-size: 14px; color: var(--ink-4);"><span>○</span><span>Detecting housework</span></div>
+      <div class="loading-step" style="padding: 10px 0; display: flex; gap: 12px; font-size: 14px; color: var(--ink-4);"><span>○</span><span>Mapping next moves</span></div>
     </div>
   </div>
 </section>
 
+<!-- ============== MIRROR ============== -->
 <section class="screen" id="screen-mirror" aria-labelledby="mirror-title">
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="max-w-3xl mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-      <div>
-        <p class="muted text-sm mb-3" id="mirror-subtitle">Reflected from your dump</p>
-        <h2 id="mirror-title" class="serif text-4xl md:text-5xl font-light mb-4">Here's what we see.</h2>
-        <p class="muted text-lg">Four reflections. Read them. Push back. The truth is the conversation between you and what you actually did.</p>
+  <div class="page-default" style="padding-top: 64px; padding-bottom: 72px;">
+    <header class="section-head" style="max-width: 720px;">
+      <p class="eyebrow" id="mirror-subtitle">04 reflections · reflected from your dump</p>
+      <h2 id="mirror-title" class="section-title">Here's <em>what we see.</em></h2>
+      <p class="section-sub">Push back where they're wrong. The truth is the conversation between you and what you did.</p>
+    </header>
+
+    <div id="mirror-grid"></div>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--rule);">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <button class="btn-ghost btn-ghost-noarrow btn-ghost-sm" onclick="goto('dump')">← Back to dump</button>
+        <button class="btn-ghost btn-ghost-sm" onclick="openCoach()">Talk through this with me</button>
       </div>
-      <button class="btn-ghost text-sm whitespace-nowrap" style="padding: 10px 18px; min-height: 40px;" onclick="openCoach()">Talk through this with me →</button>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="mirror-grid"></div>
-    <div class="mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <button class="btn-ghost text-sm" style="padding: 10px 18px; min-height: 40px;" onclick="goto('dump')">← Back to dump</button>
-        <p class="muted text-sm">Each reflection is editable. Push back where it's wrong.</p>
-      </div>
-      <button class="btn-primary" onclick="generateArtifact()" id="generate-btn"><span id="generate-label">Generate my self-assessment</span> →</button>
+      <button class="btn-primary" onclick="generateArtifact()" id="generate-btn"><span id="generate-label">Generate my self-assessment</span></button>
     </div>
   </div>
 </section>
 
+<!-- ============== GENERATING ============== -->
 <section class="screen" id="screen-generating">
-  <div class="max-w-2xl mx-auto px-6 py-32 text-center">
-    <div class="mb-10" aria-live="polite">
+  <div class="page-narrow" style="padding-top: 120px; padding-bottom: 96px; text-align: center;">
+    <div class="loader-row" style="margin-bottom: 40px;" aria-live="polite">
       <span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span>
     </div>
-    <h2 class="serif text-4xl font-light mb-4" id="generating-title">Writing your artifact.</h2>
-    <p class="muted text-base max-w-md mx-auto">Choosing a narrative frame · structuring sections · pulling source-tagged evidence.</p>
+    <h2 class="section-title" id="generating-title" style="font-size: 42px; margin-bottom: 16px;">Writing your <em>artifact.</em></h2>
+    <p class="section-sub">Choosing a narrative frame · structuring sections · pulling source-tagged evidence.</p>
   </div>
 </section>
 
+<!-- ============== VOUCH ARTIFACT ============== -->
 <section class="screen" id="screen-vouch" aria-labelledby="vouch-title">
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="max-w-3xl mb-10">
-      <p class="muted text-sm mb-3">Step 4 of 4 · Vouch</p>
-      <h2 id="vouch-title" class="serif text-4xl md:text-5xl font-light mb-4"><span id="vouch-title-text">Your artifact.</span></h2>
-      <p class="muted text-lg">Editable. Source-referenced to what you dumped. Export when ready.</p>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2">
-        <div class="flex items-center justify-between mb-4 px-1 flex-wrap gap-3">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs dim uppercase tracking-wider">Frame</span>
-            <span class="pill"><span class="dot dot-amber"></span><span id="frame-label">—</span></span>
-            <span class="text-xs link-accent">change</span>
+  <div class="page-wide" style="padding-top: 64px; padding-bottom: 72px;">
+    <header class="section-head" style="max-width: 720px;">
+      <p class="eyebrow">Step 04 of 04</p>
+      <h2 id="vouch-title" class="section-title"><span id="vouch-title-text">Your artifact.</span></h2>
+      <p class="section-sub">Editable. Source-referenced to what you dumped. Export when ready.</p>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 1fr 280px; gap: 56px; align-items: start;" id="vouch-layout">
+      <div>
+        <div class="meta-bar">
+          <div class="meta-bar-group">
+            <span class="meta-bar-label">Frame</span>
+            <span class="meta-bar-value" id="frame-label">—</span>
+            <span class="meta-bar-link">change</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs dim uppercase tracking-wider">Privacy</span>
-            <span class="pill" style="color: var(--sage);"><span class="dot dot-sage"></span>Shareable</span>
-            <span class="text-xs link-accent">make private</span>
-          </div>
-        </div>
-        <div class="doc-mock" id="artifact-content"><em class="dim">Loading…</em></div>
-      </div>
-      <div class="space-y-4">
-        <div class="surface rounded-xl p-5">
-          <p class="text-xs uppercase tracking-wider mb-3" style="color: var(--accent);">Export</p>
-          <div class="space-y-2">
-            <button class="surface-2 rounded-lg w-full text-left text-sm py-2.5 px-3 transition" onclick="downloadPDF()">→ Download PDF</button>
-            <button class="surface-2 rounded-lg w-full text-left text-sm py-2.5 px-3 transition" onclick="downloadWord()">→ Download Word (.doc)</button>
-            <button class="surface-2 rounded-lg w-full text-left text-sm py-2.5 px-3 transition" onclick="downloadArtifact()">→ Download Markdown</button>
-            <button class="surface-2 rounded-lg w-full text-left text-sm py-2.5 px-3 transition" onclick="copyArtifact('markdown')">→ Copy as Markdown</button>
-            <button class="surface-2 rounded-lg w-full text-left text-sm py-2.5 px-3 transition" onclick="copyArtifact('text')">→ Copy as plain text</button>
+          <div class="meta-bar-group">
+            <span class="meta-bar-label">Privacy</span>
+            <span class="meta-bar-value" style="color: var(--good);">Shareable</span>
+            <span class="meta-bar-link">make private</span>
           </div>
         </div>
-        <div class="rounded-xl p-5" style="background: rgba(212,163,107,0.08); border: 1px solid var(--border-strong);">
-          <p class="text-xs uppercase tracking-wider mb-3" style="color: var(--accent);">Try another moment</p>
-          <p class="text-xs muted leading-relaxed mb-3">Your evidence base supports parallel artifacts. Generate a sponsor briefing, promo packet, or interview prep from the same dump.</p>
-          <button class="text-sm link-accent" onclick="goto('trigger')">Switch artifact type →</button>
-        </div>
-        <div class="flex flex-col gap-2 pt-2">
-          <button class="btn-ghost text-sm" onclick="goto('mirror')">← Back to reflections</button>
-          <button class="btn-primary" onclick="restart()">Start over</button>
+
+        <div class="doc-mock" id="artifact-content">
+          <em style="color: var(--ink-4);">Loading…</em>
         </div>
       </div>
+
+      <aside>
+        <div class="rail-section">
+          <p class="rail-label">Export</p>
+          <div class="rail-list">
+            <button class="rail-link" onclick="downloadPDF()">Download PDF</button>
+            <button class="rail-link" onclick="downloadWord()">Download Word (.doc)</button>
+            <button class="rail-link" onclick="downloadArtifact()">Download Markdown</button>
+            <button class="rail-link" onclick="copyArtifact('markdown')">Copy as Markdown</button>
+            <button class="rail-link" onclick="copyArtifact('text')">Copy as plain text</button>
+          </div>
+        </div>
+
+        <div class="rail-section">
+          <p class="rail-label">Try another moment</p>
+          <p style="font-family: var(--font-ui); font-size: 13px; color: var(--ink-3); line-height: 1.5; margin-bottom: 14px;">Your evidence base supports parallel artifacts.</p>
+          <button class="link-pop" onclick="goto('trigger')" style="font-size: 13px; font-weight: 500;">Switch artifact type →</button>
+        </div>
+
+        <div class="rail-section" style="display: flex; flex-direction: column; gap: 10px; margin-top: 32px;">
+          <button class="btn-ghost btn-ghost-noarrow btn-ghost-sm" onclick="goto('mirror')" style="text-align: left;">← Back to reflections</button>
+          <button class="btn-primary btn-primary-sm" onclick="restart()">Start over</button>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
 
 </main>
 
+<!-- ============== MODAL · EMAIL ============== -->
 <div class="modal-backdrop" id="modal-email" onclick="if(event.target===this)closeEmail()" role="dialog" aria-modal="true" aria-labelledby="email-title">
   <div class="modal">
-    <div class="flex justify-between items-start mb-6">
+    <div class="modal-header">
       <div>
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Drafted email · glamour move</p>
-        <h3 id="email-title" class="serif text-3xl font-light">Proposing the role.</h3>
+        <p class="eyebrow" style="margin-bottom: 14px;">Glamour move · drafted email</p>
+        <h3 id="email-title" class="modal-title">Proposing <em>the role.</em></h3>
       </div>
-      <button class="text-2xl muted hover:text-[var(--text)] leading-none" onclick="closeEmail()" aria-label="Close">×</button>
+      <button class="modal-close" onclick="closeEmail()" aria-label="Close">×</button>
     </div>
-    <p class="muted text-sm mb-6 italic">Confident, declarative tone. Routes the ask through evidence, not personality. Edit before sending — but don't soften it.</p>
-    <div class="email-draft" id="email-content"><em class="dim">No email drafted yet — reflect first.</em></div>
-    <div class="mt-6 flex flex-wrap items-center gap-3">
-      <button class="btn-primary text-sm" style="padding: 10px 18px; min-height: 40px;" onclick="copyEmail()">Copy email</button>
-      <button class="btn-ghost text-sm" style="padding: 10px 18px; min-height: 40px;" onclick="closeEmail()">Back to reflections</button>
-      <span class="dim text-xs ml-auto italic">Frame: assertive · evidence-routed</span>
+    <p style="font-family: var(--font-ui); font-size: 14px; color: var(--ink-3); margin-bottom: 24px; line-height: 1.5;">Confident, declarative. Routes the ask through evidence, not personality. Edit before sending — don't soften it.</p>
+
+    <div class="email-draft" id="email-content">
+      <em style="color: var(--ink-4);">No email drafted yet — reflect first.</em>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px;">
+      <button class="btn-primary btn-primary-sm" onclick="copyEmail()">Copy email</button>
+      <button class="btn-ghost btn-ghost-noarrow btn-ghost-sm" onclick="closeEmail()">Back to reflections</button>
+      <span style="font-family: var(--font-ui); font-size: 11px; color: var(--ink-4); margin-left: auto; font-style: italic;">Frame: assertive · evidence-routed</span>
     </div>
   </div>
 </div>
 
+<!-- ============== MODAL · COACH ============== -->
 <div class="modal-backdrop" id="modal-coach" onclick="if(event.target===this)closeCoach()" role="dialog" aria-modal="true" aria-labelledby="coach-title">
   <div class="modal modal-sm">
-    <div class="flex justify-between items-start mb-6">
+    <div class="modal-header">
       <div>
-        <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Coach mode</p>
-        <h3 id="coach-title" class="serif text-2xl font-light">Talk through this with me.</h3>
+        <p class="eyebrow" style="margin-bottom: 14px;">Coach mode</p>
+        <h3 id="coach-title" class="modal-title">Talk through <em>this with me.</em></h3>
       </div>
-      <button class="text-2xl muted hover:text-[var(--text)] leading-none" onclick="closeCoach()" aria-label="Close">×</button>
+      <button class="modal-close" onclick="closeCoach()" aria-label="Close">×</button>
     </div>
-    <p class="muted text-sm leading-relaxed mb-5">Evidence-first artifact generation is Vouch's default. Coach mode is a Socratic dialogue alternative — for moments when you want to think through a pivot, prep a sponsor conversation, or process emotional feedback before generating an artifact.</p>
-    <div class="surface-2 rounded-lg p-4 mb-5">
-      <p class="text-xs uppercase tracking-wider mb-2" style="color: var(--accent);">Roadmap</p>
-      <ul class="text-sm muted space-y-1.5 leading-relaxed">
-        <li>· Career pivot exploration ("am I ready for X?")</li>
-        <li>· Sponsor conversation prep</li>
-        <li>· Processing emotional feedback before generating</li>
-      </ul>
-    </div>
-    <p class="text-sm muted italic mb-5">Stubbed for tonight's MVP — full dialogue mode lands Phase 2.</p>
-    <button class="btn-primary text-sm w-full" onclick="closeCoach()">Back to reflections</button>
+    <p style="font-family: var(--font-ui); font-size: 14px; color: var(--ink-2); line-height: 1.55; margin-bottom: 18px;">Evidence-first artifact generation is Vouch's default. Coach mode is a Socratic dialogue alternative — for when you want to think through a pivot, prep a sponsor conversation, or process emotional feedback before generating.</p>
+    <p class="rail-label" style="margin-bottom: 10px;">Roadmap</p>
+    <ul style="font-family: var(--font-ui); font-size: 13px; color: var(--ink-2); line-height: 1.6; padding-left: 0; list-style: none; margin-bottom: 24px;">
+      <li>· Career pivot exploration</li>
+      <li>· Sponsor conversation prep</li>
+      <li>· Processing emotional feedback before generating</li>
+    </ul>
+    <p style="font-family: var(--font-ui); font-size: 13px; color: var(--ink-3); margin-bottom: 24px; font-style: italic;">Stubbed for tonight's MVP — full dialogue mode lands Phase 2.</p>
+    <button class="btn-primary" style="width: 100%;" onclick="closeCoach()">Back to reflections</button>
   </div>
 </div>
 
+<!-- FOOTER -->
+<footer class="page-foot">
+  <p>For people who built it · 2026</p>
+</footer>
+
 <script>
+// =====================================================================
+// SEEDS — Anonymized example data per artifact type
+// =====================================================================
+
 const BASE_DUMP = `[Project brief — Apex Commercial Casualty AI · Sterling Risk Insurance]
 Goal: build an AI agent that pre-screens commercial casualty submissions for the $1B core book. Stalled three times with vendors. Internal capacity unproven. 6-week MVP target.
 
@@ -487,89 +980,8 @@ Current title: Senior Product Strategist (de facto Co-Product Owner)
 Tenure at Sterling Risk: 16 months
 Background: 4 yrs Helix Cloud (cloud GTM Strategy), Wharton MBA, 5 yrs Big Four consulting prior.`;
 
-const LOAD_COPY = {
-  performance_review: {
-    title: 'Reading your year.',
-    subtitle: 'Pulling out themes, wins, and what\'s missing — for your performance review.',
-  },
-  promo_case: {
-    title: 'Building your case for the next level.',
-    subtitle: 'Surfacing scope expansion, demonstrated competencies, and the trajectory committee needs to see.',
-  },
-  interview_prep: {
-    title: 'Reading your record against the role.',
-    subtitle: 'Mapping your stories to JD competencies, surfacing what to address head-on.',
-  },
-  sponsor_conversation: {
-    title: 'Reading your year for the briefing.',
-    subtitle: 'Surfacing your strongest evidence and the right ask for your sponsor.',
-  },
-  career_acceleration: {
-    title: 'Reading your record and your direction.',
-    subtitle: 'Surfacing plausible moves, fit signals, and where the evidence points next.',
-  },
-};
-
-const DUMP_COPY = {
-  performance_review: {
-    title: 'Tell us what your year looked like.',
-    subtitle: 'Paste project briefs, calendar exports, Slack threads, OKR docs, the actual review you got back. No structure required — that\'s our job.',
-    helps: [
-      'The actual review text you got',
-      'Project briefs or PRDs you led',
-      'Calendar / 1:1 notes',
-      'Vague feedback you\'ve been chewing on',
-      'Your goals for the next role',
-    ],
-  },
-  promo_case: {
-    title: 'Show us the case for your next level.',
-    subtitle: 'Paste evidence of scope expansion, multi-team work, mentorship and hiring, prior promo feedback. Anything that demonstrates you\'re already operating at the next level.',
-    helps: [
-      'Scope-expansion stories with outcomes',
-      'Multi-team or cross-org leadership',
-      'Mentorship or hiring contributions',
-      'Prior promo feedback or "not yet" reasoning',
-      'Your company\'s level framework if visible',
-    ],
-  },
-  interview_prep: {
-    title: 'Show us your record and the bar to clear.',
-    subtitle: 'For an external role or an internal transfer. Paste your work history, projects you\'ve led, stories that demonstrate the next-level scope. The JD and recruiter / hiring manager notes go in their own boxes below.',
-    helps: [
-      'Resume / detailed work history',
-      'Project briefs you led',
-      'Customer / external-facing wins',
-      'Internal transfer signal (who\'s opening the role, what they need)',
-      'Hiring manager background (LinkedIn / talks)',
-    ],
-  },
-  sponsor_conversation: {
-    title: 'Brief us so we can brief them.',
-    subtitle: 'Paste recent wins, feedback they\'ve seen, what they already know about your work. The sponsor profile and your specific ask go in their own boxes below.',
-    helps: [
-      'Recent wins with measurable outcomes',
-      'Last meaningful feedback you got',
-      'The decision-makers your sponsor reaches',
-      'What this sponsor already knows / has seen',
-      'Prior sponsor-conversation history',
-    ],
-  },
-  career_acceleration: {
-    title: 'Show us where you are and where you\'re aimed.',
-    subtitle: 'Paste your full work record + the constraints you\'re operating under. Target tracks, companies, comp floor, and timeline go in their own box below.',
-    helps: [
-      'Full career history + current role',
-      'Constraints (location, comp, family)',
-      'What you\'re known for (your record\'s through-line)',
-      'Decision criteria for the next role',
-      'Compensation floor + target',
-    ],
-  },
-};
-
 const SEEDS = {
-  performance_review: { label: 'Performance review', title: 'Your performance review self-assessment.', cta: 'Generate my self-assessment', dump: BASE_DUMP, extra: {} },
+  performance_review: { label: 'Performance review', title: 'Your performance review.', cta: 'Generate my self-assessment', dump: BASE_DUMP, extra: {} },
   promo_case: { label: 'Promo case', title: 'Your promo case packet.', cta: 'Generate the promo packet', dump: BASE_DUMP, extra: { target_level: 'Principal Product Manager' } },
   interview_prep: { label: 'Interview prep', title: 'Your interview prep.', cta: 'Generate the interview prep', dump: BASE_DUMP, extra: {
     jd: `Verity AI — Forward Deployed Product Manager (Enterprise AI Platform)
@@ -595,18 +1007,53 @@ What we look for:
   sponsor_conversation: { label: 'Sponsor conversation', title: 'Your sponsor briefing.', cta: 'Generate the briefing', dump: BASE_DUMP, extra: {
     sponsor: 'Marcus Tate, my direct manager and skip-to-skip. He sits on the calibration committee and has a strong working relationship with the SVP of Underwriting Ops. He has signaled support but has not advocated explicitly yet.',
     ask: 'Advocate for Senior consideration in the next promo cycle AND endorse the Cross-LOB Rollout Lead scope expansion for FY26.'
-  }},
-  career_acceleration: { label: 'Career acceleration', title: 'Your career acceleration memo.', cta: 'Generate the strategic read', dump: BASE_DUMP, extra: {
-    targets: `Currently considering three directions:
-1. Stay at Sterling Risk — Senior PM, then Principal PM (12-24 months)
-2. Forward Deployed PM at an enterprise AI startup (e.g., Verity AI, Beacon AI)
-3. Principal Cloud Solutions / PSO role at Helix Cloud (returning to big tech)
-
-Compensation floor: $245K TC. Target: $300K+. Target exit: ~12 months.`
   }}
 };
 
+const DUMP_COPY = {
+  performance_review: {
+    title: 'Tell us what your year <em>looked like.</em>',
+    subtitle: 'Paste project briefs, calendar exports, Slack threads, OKR docs, the actual review you got back. No structure required — that\'s our job.',
+    helps: 'the actual review text you got, project briefs you led, calendar / 1:1 notes, vague feedback you\'ve been chewing on, your goals for the next role',
+  },
+  promo_case: {
+    title: 'Show us the <em>case</em> for your next level.',
+    subtitle: 'Paste evidence of scope expansion, multi-team work, mentorship and hiring, prior promo feedback. Anything that demonstrates you\'re already operating at the next level.',
+    helps: 'scope-expansion stories with outcomes, multi-team or cross-org leadership, mentorship contributions, prior promo feedback, your company\'s level framework',
+  },
+  interview_prep: {
+    title: 'Show us your record and the <em>bar to clear.</em>',
+    subtitle: 'For an external role or an internal transfer. Paste your work history, projects you\'ve led, stories that demonstrate the next-level scope. The JD and recruiter / hiring-manager notes go in their own boxes below.',
+    helps: 'resume / detailed work history, project briefs you led, customer-facing wins, internal transfer signal, hiring manager background',
+  },
+  sponsor_conversation: {
+    title: 'Brief us so we can <em>brief them.</em>',
+    subtitle: 'Paste recent wins, feedback they\'ve seen, what they already know about your work. The sponsor profile and your specific ask go in their own boxes below.',
+    helps: 'recent wins with measurable outcomes, last meaningful feedback you got, the decision-makers your sponsor reaches, prior sponsor-conversation history',
+  }
+};
+
+const LOAD_COPY = {
+  performance_review: { title: 'Reading your <em>year.</em>', subtitle: 'Pulling out themes, wins, and what\'s missing — for your performance review.' },
+  promo_case: { title: 'Building your case for the <em>next level.</em>', subtitle: 'Surfacing scope expansion, demonstrated competencies, and the trajectory committee needs to see.' },
+  interview_prep: { title: 'Reading your record against the <em>role.</em>', subtitle: 'Mapping your stories to JD competencies, surfacing what to address head-on.' },
+  sponsor_conversation: { title: 'Reading your year for the <em>briefing.</em>', subtitle: 'Surfacing your strongest evidence and the right ask for your sponsor.' },
+};
+
+// =====================================================================
+// STATE
+// =====================================================================
 const stepMap = { landing: 0, profile: 1, trigger: 2, dump: 2, loading: 3, mirror: 3, generating: 4, vouch: 4 };
+const progressMetaMap = {
+  landing: 'Career articulation · redesigned',
+  profile: 'Step <span>01</span> · Profile',
+  trigger: 'Step <span>02</span> · Trigger',
+  dump: 'Step <span>03</span> · Dump',
+  loading: 'Reading your dump',
+  mirror: 'Step <span>04</span> · Mirror',
+  generating: 'Writing your artifact',
+  vouch: 'Step <span>04</span> · Vouch',
+};
 let current = 'landing';
 let selectedType = 'performance_review';
 let cachedReflections = null;
@@ -616,37 +1063,32 @@ function goto(target) {
   document.getElementById('screen-' + current).classList.remove('active');
   document.getElementById('screen-' + target).classList.add('active');
   current = target;
-  updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (target === 'dump') populateDumpForm();
   if (target === 'profile') loadProfileForm();
+  const pm = document.getElementById('progress-meta');
+  if (pm && progressMetaMap[target]) pm.innerHTML = progressMetaMap[target];
   const newScreen = document.getElementById('screen-' + target);
   const heading = newScreen.querySelector('h1, h2');
   if (heading) heading.focus({ preventScroll: true });
 }
 
 // =====================================================================
-// PROFILE — standing context (resume + JD + LinkedIn)
+// PROFILE
 // =====================================================================
-
 function loadProfile() {
   try {
     const raw = localStorage.getItem('vouch_profile');
     return raw ? JSON.parse(raw) : { resume: '', jd: '', linkedin: '' };
   } catch (e) { return { resume: '', jd: '', linkedin: '' }; }
 }
-
-function saveProfile(p) {
-  try { localStorage.setItem('vouch_profile', JSON.stringify(p)); } catch (e) {}
-}
-
+function saveProfile(p) { try { localStorage.setItem('vouch_profile', JSON.stringify(p)); } catch (e) {} }
 function loadProfileForm() {
   const p = loadProfile();
   if (document.getElementById('profile-resume').value === '') document.getElementById('profile-resume').value = p.resume || '';
   if (document.getElementById('profile-jd').value === '') document.getElementById('profile-jd').value = p.jd || '';
   if (document.getElementById('profile-linkedin').value === '') document.getElementById('profile-linkedin').value = p.linkedin || '';
 }
-
 function readProfileForm() {
   return {
     resume: document.getElementById('profile-resume').value.trim(),
@@ -654,16 +1096,12 @@ function readProfileForm() {
     linkedin: document.getElementById('profile-linkedin').value.trim(),
   };
 }
-
-function saveProfileAndGo() {
-  saveProfile(readProfileForm());
-  goto('trigger');
-}
+function saveProfileAndGo() { saveProfile(readProfileForm()); goto('trigger'); }
 
 async function suggestJD() {
   const resume = document.getElementById('profile-resume').value.trim();
   if (resume.length < 100) {
-    document.getElementById('jd-suggest-status').textContent = 'Paste at least a paragraph of your resume first so the suggestion has something to work from.';
+    document.getElementById('jd-suggest-status').textContent = 'Paste at least a paragraph of your resume first.';
     return;
   }
   const btn = document.getElementById('suggest-jd-btn');
@@ -687,7 +1125,7 @@ async function suggestJD() {
   } catch (err) {
     status.textContent = 'Suggestion failed: ' + err.message;
   } finally {
-    btn.textContent = 'Find one for me →';
+    btn.textContent = 'Find one for me';
     btn.style.pointerEvents = '';
   }
 }
@@ -703,37 +1141,20 @@ function buildProfileContext() {
   return ctx;
 }
 
-function updateProgress() {
-  const step = stepMap[current] ?? 0;
-  document.querySelectorAll('.progress-dot').forEach((el, i) => {
-    el.classList.remove('active', 'complete');
-    if (i < step) el.classList.add('complete');
-    else if (i === step) el.classList.add('active');
-  });
-}
-
+// =====================================================================
+// TRIGGER PICKER
+// =====================================================================
 function selectType(type) {
   selectedType = type;
   document.querySelectorAll('.trigger-card').forEach(card => {
-    if (card.dataset.type === type) {
-      card.classList.add('selected');
-      const header = card.querySelector('.serif')?.parentElement;
-      if (header && !card.querySelector('.pill')) {
-        const pill = document.createElement('span');
-        pill.className = 'pill';
-        pill.innerHTML = '<span class="dot dot-amber"></span>Selected';
-        if (header.classList.contains('flex')) header.appendChild(pill);
-      }
-    } else {
-      card.classList.remove('selected');
-      const pill = card.querySelector('.pill');
-      if (pill) pill.remove();
-    }
+    card.classList.toggle('selected', card.dataset.type === type);
   });
-  const seed = SEEDS[type];
-  document.getElementById('continue-label').textContent = 'with ' + seed.label;
+  document.getElementById('continue-label').textContent = SEEDS[type].label;
 }
 
+// =====================================================================
+// DUMP
+// =====================================================================
 function populateDumpForm() {
   const seed = SEEDS[selectedType];
   const copy = DUMP_COPY[selectedType];
@@ -745,13 +1166,13 @@ function populateDumpForm() {
   }
   document.getElementById('dump-context-label').textContent = seed.label;
   if (copy) {
-    document.getElementById('dump-title').textContent = copy.title;
+    document.getElementById('dump-title').innerHTML = copy.title;
     document.getElementById('dump-subtitle').textContent = copy.subtitle;
-    const helpsEl = document.getElementById('dump-helps');
-    if (helpsEl) helpsEl.innerHTML = copy.helps.map(h => `<li>· ${escapeHtml(h)}</li>`).join('');
+    document.getElementById('dump-helps-inline').textContent = copy.helps;
   }
-  ['promo_case','interview_prep','sponsor_conversation','career_acceleration'].forEach(t => {
-    document.getElementById('extra-' + t).classList.add('hidden-input');
+  ['promo_case','interview_prep','sponsor_conversation'].forEach(t => {
+    const el = document.getElementById('extra-' + t);
+    if (el) el.classList.add('hidden-input');
   });
   const extraEl = document.getElementById('extra-' + selectedType);
   if (extraEl) extraEl.classList.remove('hidden-input');
@@ -761,8 +1182,8 @@ function populateDumpForm() {
   if (ex.feedback && !document.getElementById('feedback-input').value) document.getElementById('feedback-input').value = ex.feedback;
   if (ex.sponsor && !document.getElementById('sponsor-input').value) document.getElementById('sponsor-input').value = ex.sponsor;
   if (ex.ask && !document.getElementById('ask-input').value) document.getElementById('ask-input').value = ex.ask;
-  if (ex.targets && !document.getElementById('targets-input').value) document.getElementById('targets-input').value = ex.targets;
-  document.getElementById('vouch-title-text').textContent = seed.title;
+  const vouchTitleHtml = '<span id="vouch-title-text">' + seed.title.replace(/\b(year|case|prep|briefing|memo|self-assessment|packet)/i, '<em>$1</em>') + '</span>';
+  document.getElementById('vouch-title').innerHTML = vouchTitleHtml;
   document.getElementById('generate-label').textContent = seed.cta;
 }
 
@@ -776,8 +1197,6 @@ function collectExtras() {
   } else if (selectedType === 'sponsor_conversation') {
     extras.sponsor = document.getElementById('sponsor-input').value.trim();
     extras.ask = document.getElementById('ask-input').value.trim();
-  } else if (selectedType === 'career_acceleration') {
-    extras.targets = document.getElementById('targets-input').value.trim();
   }
   return extras;
 }
@@ -787,20 +1206,18 @@ function showError(msg) {
   el.textContent = msg;
   el.classList.remove('hidden-input');
 }
-function clearError() {
-  document.getElementById('dump-error').classList.add('hidden-input');
-}
+function clearError() { document.getElementById('dump-error').classList.add('hidden-input'); }
 
 async function processDump() {
   clearError();
   const dump = document.getElementById('dump-input').value.trim();
   if (dump.length < 30) {
-    showError('Your dump is a little thin — paste more material, even unstructured. The more we have, the better the reflection.');
+    showError('Your dump is a little thin — paste more material. The more we have, the better the reflection.');
     return;
   }
   const loadCopy = LOAD_COPY[selectedType];
   if (loadCopy) {
-    document.getElementById('loading-title').textContent = loadCopy.title;
+    document.getElementById('loading-title').innerHTML = loadCopy.title;
     document.getElementById('loading-subtitle').textContent = loadCopy.subtitle;
   }
   goto('loading');
@@ -828,7 +1245,7 @@ async function processDump() {
 }
 
 function animateLoadingSteps() {
-  const steps = document.getElementById('loading-steps').children;
+  const steps = document.querySelectorAll('#loading-steps .loading-step');
   let i = 0;
   const interval = setInterval(() => {
     if (current !== 'loading') { clearInterval(interval); return; }
@@ -836,14 +1253,15 @@ function animateLoadingSteps() {
     if (i > 0) {
       const prev = steps[i-1];
       prev.children[0].textContent = '✓';
-      prev.children[0].style.color = 'var(--sage)';
-      prev.children[0].className = '';
-      prev.children[1].className = 'muted';
+      prev.children[0].style.color = 'var(--good)';
+      prev.children[0].style.fontWeight = '600';
+      prev.style.color = 'var(--ink-3)';
     }
     const cur = steps[i];
     cur.children[0].textContent = '●';
-    cur.children[0].className = 'accent';
-    cur.children[1].className = '';
+    cur.children[0].style.color = 'var(--pop)';
+    cur.children[0].style.fontWeight = '600';
+    cur.style.color = 'var(--ink-2)';
     i++;
   }, 2500);
 }
@@ -853,128 +1271,118 @@ function escapeHtml(str) {
   return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
 
+// =====================================================================
+// RENDER MIRROR
+// =====================================================================
 function renderMirror(r) {
   const grid = document.getElementById('mirror-grid');
   grid.innerHTML = '';
+
+  // 01 · Your year, articulated
   const themes = (r.year_articulated?.themes || []).map(t =>
-    `<div class="surface-2 rounded-lg p-4">
-      <p class="text-sm font-medium mb-1" style="color: var(--accent);">${escapeHtml(t.label)}</p>
-      <p class="text-sm muted leading-relaxed">${escapeHtml(t.evidence)}</p>
-    </div>`
+    `<div class="quote-pill">${escapeHtml(t.label)} — <span style="font-weight: 500; color: var(--ink-2);">${escapeHtml(t.evidence)}</span></div>`
   ).join('');
   grid.insertAdjacentHTML('beforeend', `
-    <div class="reflection-card">
-      <div class="flex items-start justify-between mb-5">
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-2" style="color: var(--accent);">Reflection 01</p>
-          <h3 class="serif text-3xl">Your year, articulated.</h3>
-        </div>
-        <span class="pill" style="color: var(--sage);"><span class="dot dot-sage"></span>Strong</span>
+    <article class="reflection">
+      <header class="reflection-head">
+        <span class="reflection-num">01</span>
+        <h3 class="reflection-title">Your year, articulated.</h3>
+        <span class="state state-good">Strong</span>
+      </header>
+      <div class="reflection-body">
+        <p>${(r.year_articulated?.themes?.length || 0)} themes · ${r.year_articulated?.wins_count || 0} wins surfaced.</p>
+        ${themes}
       </div>
-      <p class="muted text-sm mb-4 italic">${(r.year_articulated?.themes?.length || 0)} themes · ${r.year_articulated?.wins_count || 0} wins surfaced</p>
-      <div class="space-y-3">${themes}</div>
-    </div>
+    </article>
   `);
+
+  // 02 · Underselling + housework
   const wins = (r.underselling?.wins_missing_impact || []).map(w =>
-    `<div class="surface-2 rounded-lg p-4" style="border-left: 3px solid var(--rust);">
-      <p class="text-sm mb-2"><strong>"${escapeHtml(w.raw)}"</strong></p>
-      <p class="text-sm muted">${escapeHtml(w.missing)} <span class="rust">→ Add the outcome.</span></p>
-    </div>`
+    `<div class="quote-pill" style="border-left-color: var(--pop);">"${escapeHtml(w.raw)}" <span style="font-weight: 400; color: var(--ink-3); font-size: 13px;">— ${escapeHtml(w.missing)}</span></div>`
   ).join('');
   const hw = r.underselling?.housework;
+  const winsCount = r.underselling?.wins_missing_impact?.length || 0;
   grid.insertAdjacentHTML('beforeend', `
-    <div class="reflection-card">
-      <div class="flex items-start justify-between mb-5">
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-2" style="color: var(--accent);">Reflection 02</p>
-          <h3 class="serif text-3xl">Underselling + eating your time.</h3>
-        </div>
-        <span class="pill" style="color: var(--rust);"><span class="dot dot-rust"></span>${r.underselling?.wins_missing_impact?.length || 0} gaps · ${hw ? '1 pattern' : '0 patterns'}</span>
-      </div>
-      <p class="text-xs dim uppercase tracking-wider mb-2">A · Wins missing business impact</p>
-      <p class="muted text-sm mb-4 italic">Wins logged without outcomes. Worth filling in.</p>
-      <div class="space-y-3">${wins || '<p class="dim text-sm italic">None detected.</p>'}</div>
-      <button class="text-sm mt-4 link-accent">Claim credit →</button>
-      ${hw ? `
-        <div class="border-t my-6" style="border-color: var(--border);"></div>
-        <p class="text-xs dim uppercase tracking-wider mb-2">B · Office housework detected</p>
-        <p class="muted text-sm mb-4 italic">${escapeHtml(hw.pattern || '')}</p>
-        <div class="surface-2 rounded-lg p-4" style="border-left: 3px solid var(--plum);">
-          <p class="text-sm mb-2"><strong>${escapeHtml(hw.evidence || '')}</strong></p>
-          <p class="text-sm muted leading-relaxed mb-3">This should be a <em>scoped role</em>, not a favor.</p>
-          <div class="rounded-lg p-4" style="background: rgba(212,163,107,0.1); border: 1px solid var(--border-strong);">
-            <p class="text-xs uppercase tracking-wider mb-1.5" style="color: var(--accent);">Suggested glamour move</p>
-            <p class="serif text-base leading-snug mb-3">${escapeHtml(hw.glamour_move || '')}</p>
-            <button class="btn-primary text-sm" style="padding: 10px 18px; min-height: 40px;" onclick="openEmail()">Draft the email →</button>
+    <article class="reflection">
+      <header class="reflection-head">
+        <span class="reflection-num">02</span>
+        <h3 class="reflection-title">Underselling + eating your time.</h3>
+        <span class="state state-warn">${winsCount} gaps${hw ? ' · 1 pattern' : ''}</span>
+      </header>
+      <div class="reflection-body">
+        ${winsCount > 0 ? `<p class="reflection-sub-label">Wins missing business impact</p>${wins}` : ''}
+        ${hw ? `
+          <p class="reflection-sub-label" style="margin-top: 28px;">Office housework detected</p>
+          <p>${escapeHtml(hw.pattern || '')}</p>
+          <div class="quote-pill" style="border-left-color: var(--pop);"><strong>${escapeHtml(hw.evidence || '')}</strong></div>
+          <div class="glamour-callout">
+            <p class="glamour-callout-label">Suggested glamour move</p>
+            <p class="glamour-callout-text">${escapeHtml(hw.glamour_move || '')}</p>
+            <button class="btn-primary btn-primary-sm" onclick="openEmail()">Draft the email</button>
           </div>
-        </div>
-      ` : ''}
-    </div>
+        ` : ''}
+      </div>
+    </article>
   `);
+
+  // 03 · Feedback decoded
   const fb = r.feedback_decoded || {};
-  const severityMap = {
-    green:  { color: 'var(--sage)',  bg: 'rgba(107,166,107,0.12)', dot: '#6ba66b', label: 'Above & beyond' },
-    yellow: { color: '#a06b3d',      bg: 'rgba(196,146,109,0.14)', dot: '#c4926d', label: 'Worth attention' },
-    red:    { color: '#a3382f',      bg: 'rgba(196,77,61,0.12)',   dot: '#c44d3d', label: 'Action needed' },
-  };
-  const sev = severityMap[fb.severity] || { color: 'var(--plum)', bg: 'rgba(167,138,176,0.08)', dot: '#9b7aa8', label: fb.pattern ? 'Pattern detected' : 'Decoded' };
+  const severityState = fb.severity === 'red' ? 'state-bad' : fb.severity === 'green' ? 'state-good' : 'state-warn';
+  const severityLabel = fb.severity === 'red' ? 'Action needed' : fb.severity === 'green' ? 'Above & beyond' : fb.severity === 'yellow' ? 'Worth attention' : (fb.pattern ? 'Pattern detected' : 'Decoded');
   grid.insertAdjacentHTML('beforeend', `
-    <div class="reflection-card">
-      <div class="flex items-start justify-between mb-5">
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-2" style="color: var(--accent);">Reflection 03</p>
-          <h3 class="serif text-3xl">Your feedback, decoded.</h3>
-        </div>
-        <span class="pill" style="color: ${sev.color};"><span class="dot" style="background: ${sev.dot};"></span>${sev.label}</span>
+    <article class="reflection">
+      <header class="reflection-head">
+        <span class="reflection-num">03</span>
+        <h3 class="reflection-title">Your feedback, decoded.</h3>
+        <span class="state ${severityState}">${severityLabel}</span>
+      </header>
+      <div class="reflection-body">
+        ${fb.raw ? `<div class="quote-pill" style="font-style: italic;">"${escapeHtml(fb.raw)}"</div>` : '<p><em>No explicit feedback found in the dump.</em></p>'}
+        ${fb.severity_reason ? `<p style="font-size: 13px; color: var(--ink-3); margin-top: 8px; font-style: italic;">${escapeHtml(fb.severity_reason)}</p>` : ''}
+        ${fb.meaning ? `<p style="margin-top: 16px;"><strong>${escapeHtml(fb.meaning)}</strong></p>` : ''}
+        ${fb.question_to_ask_back ? `
+          <p class="reflection-sub-label" style="margin-top: 20px;">Question to ask back</p>
+          <div class="quote-pill" style="font-style: italic;">"${escapeHtml(fb.question_to_ask_back)}"</div>
+        ` : ''}
       </div>
-      ${fb.raw ? `<div class="rounded-lg p-4 mb-4" style="background: ${sev.bg}; border: 1px solid var(--border);"><p class="text-xs muted uppercase tracking-wider mb-2">What you got</p><p class="serif italic text-base" style="color: ${sev.color};">"${escapeHtml(fb.raw)}"</p>${fb.severity_reason ? `<p class="text-xs muted mt-3 italic">${escapeHtml(fb.severity_reason)}</p>` : ''}</div>` : '<p class="muted text-sm italic mb-4">No explicit feedback found in the dump.</p>'}
-      <div class="space-y-3 text-sm">
-        ${fb.specific ? `<div><span class="dim text-xs uppercase tracking-wider">Specific?</span><p class="muted mt-1">${escapeHtml(fb.specific)}</p></div>` : ''}
-        ${fb.pattern ? `<div><span class="dim text-xs uppercase tracking-wider">Pattern?</span><p class="muted mt-1">${escapeHtml(fb.pattern)}</p></div>` : ''}
-        ${fb.meaning ? `<div><span class="dim text-xs uppercase tracking-wider">Likely meaning</span><p class="mt-1" style="color: var(--text);"><strong>${escapeHtml(fb.meaning)}</strong></p></div>` : ''}
-        ${fb.question_to_ask_back ? `<div class="rounded-lg p-4 mt-4" style="background: rgba(212,163,107,0.08); border: 1px solid var(--border-strong);"><span class="text-xs uppercase tracking-wider" style="color: var(--accent);">Question to ask back</span><p class="serif italic mt-2" style="color: var(--text);">"${escapeHtml(fb.question_to_ask_back)}"</p></div>` : ''}
-      </div>
-    </div>
+    </article>
   `);
+
+  // 04 · Next moves
   const moves = (r.next_moves || []).map(m => {
-    const matchColor = m.match === 'high' ? 'var(--sage)' : m.match === 'mid' ? 'var(--rust)' : 'var(--text-dim)';
-    return `<div class="surface-2 rounded-lg p-4">
-      <div class="flex justify-between items-start mb-2">
-        <p class="text-sm font-medium">${escapeHtml(m.role)}</p>
-        <span class="text-xs" style="color: ${matchColor};">${escapeHtml(m.match || '')} match</span>
-      </div>
-      <p class="text-xs muted leading-relaxed">Strong: ${escapeHtml(m.strengths || '')} <span class="rust">Gap: ${escapeHtml(m.gaps || '')}</span> ${escapeHtml(m.rationale || '')}</p>
-    </div>`;
+    const stateClass = m.match === 'high' ? 'state-good' : m.match === 'mid' ? 'state-warn' : '';
+    return `<div class="quote-pill"><span style="font-weight: 600; color: var(--ink);">${escapeHtml(m.role)}</span> <span class="${stateClass}" style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; margin-left: 8px;">${escapeHtml(m.match || '')}</span><br><span style="font-weight: 400; color: var(--ink-3); font-size: 13px;">${escapeHtml(m.strengths || '')} <span style="color: var(--pop);">Gap: ${escapeHtml(m.gaps || '')}</span> ${escapeHtml(m.rationale || '')}</span></div>`;
   }).join('');
   grid.insertAdjacentHTML('beforeend', `
-    <div class="reflection-card">
-      <div class="flex items-start justify-between mb-5">
-        <div>
-          <p class="text-xs uppercase tracking-widest mb-2" style="color: var(--accent);">Reflection 04</p>
-          <h3 class="serif text-3xl">Where your evidence points next.</h3>
-        </div>
-        <span class="pill"><span class="dot dot-amber"></span>${r.next_moves?.length || 0} fits</span>
+    <article class="reflection">
+      <header class="reflection-head">
+        <span class="reflection-num">04</span>
+        <h3 class="reflection-title">Where your evidence points next.</h3>
+        <span class="state state-warn">${r.next_moves?.length || 0} fits</span>
+      </header>
+      <div class="reflection-body">
+        ${moves}
+        ${r.recommendation ? `<div class="glamour-callout"><p class="glamour-callout-label">Recommendation</p><p style="font-family: var(--font-ui); font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 0;">${escapeHtml(r.recommendation)}</p></div>` : ''}
       </div>
-      <p class="muted text-sm mb-4 italic">Plausible next moves your evidence supports — internal and external.</p>
-      <div class="space-y-3">${moves}</div>
-      ${r.recommendation ? `<div class="mt-4 rounded-lg p-3" style="background: rgba(212,163,107,0.08); border: 1px solid var(--border-strong);"><span class="text-xs uppercase tracking-wider" style="color: var(--accent);">Recommendation</span><p class="text-sm mt-1">${escapeHtml(r.recommendation)}</p></div>` : ''}
-    </div>
+    </article>
   `);
-  document.getElementById('mirror-subtitle').textContent = `Reflected from ~${Math.round(document.getElementById('dump-input').value.length / 5)} words`;
+
+  const wordCount = Math.round(document.getElementById('dump-input').value.length / 5);
+  document.getElementById('mirror-subtitle').textContent = `04 reflections · reflected from ~${wordCount} words`;
 }
 
 function renderEmail(r) {
   const draft = r.underselling?.housework?.draft_email;
   const el = document.getElementById('email-content');
   if (!draft) {
-    el.innerHTML = '<em class="dim">No glamour-move pattern detected in this dump.</em>';
+    el.innerHTML = '<em style="color: var(--ink-4);">No glamour-move pattern detected in this dump.</em>';
     return;
   }
   const lines = draft.split('\n');
   let headerEnd = -1;
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].match(/^(To:|From:|Subject:|Re:)/i)) { headerEnd = i; continue; }
-    if (headerEnd >= 0 && lines[i].trim() === '') { break; }
+    if (headerEnd >= 0 && lines[i].trim() === '') break;
     if (headerEnd >= 0 && !lines[i].match(/^(To:|From:|Subject:|Re:)/i)) break;
   }
   if (headerEnd >= 0) {
@@ -986,9 +1394,12 @@ function renderEmail(r) {
   }
 }
 
+// =====================================================================
+// GENERATE
+// =====================================================================
 async function generateArtifact() {
   goto('generating');
-  document.getElementById('generating-title').textContent = 'Writing your ' + SEEDS[selectedType].label.toLowerCase() + '.';
+  document.getElementById('generating-title').innerHTML = 'Writing your <em>' + SEEDS[selectedType].label.toLowerCase() + '.</em>';
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -1016,6 +1427,9 @@ async function generateArtifact() {
   }
 }
 
+// =====================================================================
+// EXPORT
+// =====================================================================
 function copyArtifact(format) {
   if (!cachedArtifact) return;
   const text = format === 'text' ? cachedArtifact.replace(/[#*_`]/g, '').replace(/\n{3,}/g, '\n\n') : cachedArtifact;
@@ -1027,8 +1441,7 @@ function downloadArtifact() {
   const blob = new Blob([cachedArtifact], { type: 'text/markdown' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `vouch-${selectedType}.md`;
+  a.href = url; a.download = `vouch-${selectedType}.md`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -1056,27 +1469,22 @@ function downloadWord() {
 <meta charset="utf-8">
 <title>Vouch · ${selectedType.replace(/_/g,' ')}</title>
 <style>
-  body { font-family: Georgia, 'Times New Roman', serif; line-height: 1.55; color: #1a1612; }
-  h1 { font-size: 22pt; font-weight: 500; margin: 0 0 12pt; }
-  h2 { font-size: 11pt; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5pt; color: #6b6259; font-family: Arial, sans-serif; margin: 24pt 0 8pt; border-bottom: 1pt solid #cbb888; padding-bottom: 4pt; }
-  h3 { font-size: 13pt; font-weight: 600; margin: 14pt 0 6pt; font-family: Arial, sans-serif; }
-  h4 { font-size: 11pt; font-weight: 600; margin: 12pt 0 4pt; font-family: Arial, sans-serif; }
+  body { font-family: Arial, Helvetica, sans-serif; line-height: 1.55; color: #1d1d1f; }
+  h1 { font-size: 22pt; font-weight: 400; margin: 0 0 12pt; }
+  h2 { font-size: 10pt; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5pt; color: #2050f0; margin: 24pt 0 8pt; }
+  h3 { font-size: 13pt; font-weight: 600; margin: 14pt 0 6pt; }
+  h4 { font-size: 11pt; font-weight: 600; margin: 12pt 0 4pt; }
   p, li { font-size: 11pt; margin: 0 0 8pt; }
   ul, ol { margin: 0 0 12pt; padding-left: 22pt; }
   strong { font-weight: 600; }
   em { font-style: italic; color: #4a4239; }
-  table { border-collapse: collapse; margin: 8pt 0 14pt; width: 100%; font-family: Arial, sans-serif; font-size: 10pt; }
-  th { background: #faf6ed; font-weight: 600; text-align: left; }
-  th, td { border-bottom: 1pt solid #d4c5a8; padding: 6pt 9pt; }
-  hr { border: 0; border-top: 1pt solid #d4c5a8; margin: 16pt 0; }
-  blockquote { border-left: 3pt solid #d4a36b; padding-left: 12pt; margin: 10pt 0; color: #4a4239; font-style: italic; }
+  blockquote { background: #f5f5f7; border-left: 3pt solid #2050f0; padding: 8pt 12pt; margin: 10pt 0; color: #1d1d1f; }
 </style>
 </head><body>${bodyHtml}</body></html>`;
   const blob = new Blob(['﻿', docHtml], { type: 'application/msword' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `vouch-${selectedType}.doc`;
+  a.href = url; a.download = `vouch-${selectedType}.doc`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -1090,19 +1498,21 @@ function copyEmail() {
 function flashFeedback(msg) {
   const el = document.createElement('div');
   el.textContent = msg;
-  el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:10px;font-size:14px;z-index:200;box-shadow:var(--shadow-md);';
+  el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:999px;font-family:var(--font-ui);font-size:13px;font-weight:500;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.16);';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1500);
 }
 
+// =====================================================================
+// MODALS + UTILS
+// =====================================================================
 function openEmail() { document.getElementById('modal-email').classList.add('show'); }
 function closeEmail() { document.getElementById('modal-email').classList.remove('show'); }
 function openCoach() { document.getElementById('modal-coach').classList.add('show'); }
 function closeCoach() { document.getElementById('modal-coach').classList.remove('show'); }
 
 function restart() {
-  closeEmail();
-  closeCoach();
+  closeEmail(); closeCoach();
   cachedReflections = null;
   cachedArtifact = null;
   document.getElementById('dump-input').value = '';
@@ -1115,9 +1525,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.querySelectorAll('h1, h2').forEach(h => { h.setAttribute('tabindex', '-1'); });
+
 document.querySelectorAll('.trigger-card').forEach(card => {
   card.addEventListener('click', () => selectType(card.dataset.type));
 });
+
 selectType('performance_review');
 </script>
 
