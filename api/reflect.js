@@ -28,34 +28,54 @@ module.exports = async (req, res) => {
     // Cap dump size to keep total context manageable (~30K chars ≈ 7.5K tokens of input)
     const trimmedDump = dump.length > 30000 ? dump.slice(0, 30000) + '\n\n[...truncated for length]' : dump;
 
-    // Haiku 4.5 — fastest model. Reflect is structured JSON extraction + classification,
-    // which is Haiku's strength. Sonnet was hitting Vercel's 60s hobby-tier cap on dense dumps.
+    // Haiku 4.5 — fastest model. Reflect is structured JSON extraction + classification.
+    // Sonnet was hitting Vercel's 60s hobby-tier cap on dense dumps; Haiku finishes in time.
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 3000,
+      max_tokens: 4000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: REFLECT_PROMPT(trimmedDump) }],
     });
 
     const text = response.content[0]?.text || '';
 
-    // Try to extract JSON — strip any preamble or code fences
+    // Robust JSON extraction — handles preambles, postscripts, code fences, BOM, smart quotes
     let jsonText = text.trim();
+
+    // 1. Strip leading BOM if present
+    if (jsonText.charCodeAt(0) === 0xFEFF) jsonText = jsonText.slice(1);
+
+    // 2. Strip code fences if present
     const fenceMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     if (fenceMatch) jsonText = fenceMatch[1].trim();
+
+    // 3. Slice from first { to last } — handles preamble AND postscript
     const firstBrace = jsonText.indexOf('{');
-    if (firstBrace > 0) jsonText = jsonText.slice(firstBrace);
+    const lastBrace = jsonText.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      jsonText = jsonText.slice(firstBrace, lastBrace + 1);
+    }
+
+    // 4. Smart-quote normalization (rare but harmless)
+    jsonText = jsonText.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
 
     let reflections;
     try {
       reflections = JSON.parse(jsonText);
     } catch (e) {
-      console.error('Failed to parse reflection JSON:', text.slice(0, 200));
-      return res.status(502).json({
-        error: 'Model returned unparseable output',
-        detail: e.message,
-        raw: text.slice(0, 500),
-      });
+      // Fallback: try once more with trailing-comma repair
+      try {
+        const repaired = jsonText.replace(/,(\s*[}\]])/g, '$1');
+        reflections = JSON.parse(repaired);
+      } catch (e2) {
+        console.error('Failed to parse reflection JSON:', text.slice(0, 400));
+        return res.status(502).json({
+          error: 'Model returned unparseable output',
+          detail: e.message,
+          raw: text.slice(0, 800),
+          stop_reason: response.stop_reason,
+        });
+      }
     }
 
     return res.status(200).json({
